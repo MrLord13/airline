@@ -1,11 +1,20 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib import messages
-
+from django.conf import settings
+from django.shortcuts import get_object_or_404, render
 from appuser.models import AdminUser, CrewMember
-from flights.models import Flights, FlightCrews
+from flights.models import Flights, FlightCrews 
 from django.db.models import Q
 import datetime
+from datetime import timedelta
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import make_aware
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
+
 
 
 # Create your views here.
@@ -16,6 +25,14 @@ def flights(request):
         data['breadcrumbs'] = [{'text': 'Flights', 'url': '/dashboard/flights/'}]
 
         return render(request, 'panel/flights.html', data)
+
+
+# To connect the history view to the template(panel/crew_summary.html), do this:
+def crew_summary_page(request):
+    if request.user.is_authenticated and request.user.is_active:
+        crew_members = CrewMember.objects.filter(is_active=True)
+        return render(request, 'panel/crew_summary.html', {'crew_members': crew_members})
+    return redirect('login')
 
 
 def flight_info(request):
@@ -80,86 +97,89 @@ def date_filter(date):
 
 def data_tables(request):
     if request.method == 'POST' and request.user.is_authenticated and request.user.is_active:
-        if request.user.is_superuser or request.user.is_staff:
-            flights = Flights.objects
-        else:
-            flights = Flights.objects.filter(flightcrews__user=request.user)
+        try:
+            if request.user.is_superuser or request.user.is_staff:
+                flights = Flights.objects
+            else:
+                flights = Flights.objects.filter(flightcrews__user=request.user)
 
-        search = request.POST.get('search[value]', None)
-        if search is not None:
-            flights = flights.filter(
-                Q(origin__contains=search) |
-                Q(destination__contains=search) |
-                Q(flight_no__contains=search) |
-                Q(airline_name__contains=search) |
-                Q(airline_code__contains=search) |
-                Q(airline_type__contains=search) |
-                Q(flight_date__contains=search) |
-                Q(arrive_date__contains=search) |
-                Q(flight_time__contains=search) |
-                Q(flight_permit__contains=search)
-            )
-        airline_search = request.POST.get('columns[1][search][value]', '').replace('\\', '')
-        if len(airline_search) > 0:
-            flights = flights.filter(airline_name=airline_search)
+            search = request.POST.get('search[value]', None)
+            if search:
+                flights = flights.filter(
+                    Q(origin__icontains=search) |
+                    Q(destination__icontains=search) |
+                    Q(flight_no__icontains=search) |
+                    Q(airline_name__icontains=search) |
+                    Q(airline_code__icontains=search) |
+                    Q(airline_type__icontains=search) |
+                    Q(flight_date__icontains=search) |
+                    Q(arrive_date__icontains=search) |
+                    Q(flight_time__icontains=search) |
+                    Q(flight_permit__icontains=search)
+                )
 
-        origin_search = request.POST.get('columns[2][search][value]', '').replace('\\', '')
-        if len(origin_search) > 0:
-            flights = flights.filter(origin=origin_search)
+            # فیلترهای ستونی
+            if (val := request.POST.get('columns[1][search][value]', '').strip()):
+                flights = flights.filter(airline_name=val)
 
-        destination_search = request.POST.get('columns[3][search][value]', '').replace('\\', '')
-        if len(destination_search) > 0:
-            flights = flights.filter(destination=destination_search)
+            if (val := request.POST.get('columns[2][search][value]', '').strip()):
+                flights = flights.filter(origin=val)
 
-        airline_code_search = request.POST.get('columns[4][search][value]', '').replace('\\', '')
-        if len(airline_code_search) > 0:
-            flights = flights.filter(airline_code=airline_code_search)
+            if (val := request.POST.get('columns[3][search][value]', '').strip()):
+                flights = flights.filter(destination=val)
 
-        date_search = date_filter(request.POST.get('columns[5][search][value]', '').replace('\\', ''))
-        if len(date_search) > 0:
-            flights = flights.filter(flight_date__gte=date_search[0], flight_date__lte=date_search[1])
+            if (val := request.POST.get('columns[4][search][value]', '').strip()):
+                flights = flights.filter(airline_code=val)
 
-        date_search = date_filter(request.POST.get('columns[6][search][value]', '').replace('\\', ''))
-        if len(date_search) > 0:
-            flights = flights.filter(arrive_date__gte=date_search[0], arrive_date__lte=date_search[1])
+            if (val := request.POST.get('columns[5][search][value]', '').strip()):
+                date_range = date_filter(val)
+                if date_range:
+                    flights = flights.filter(flight_date__range=date_range)
 
-        permit_search = request.POST.get('columns[8][search][value]', '').replace('\\', '')
-        if len(permit_search) > 0:
-            flights = flights.filter(flight_permit=permit_search)
+            if (val := request.POST.get('columns[6][search][value]', '').strip()):
+                date_range = date_filter(val)
+                if date_range:
+                    flights = flights.filter(arrive_date__range=date_range)
 
-        order = request.POST.get('order[0][column]', '0')
-        order_type = request.POST.get('order[0][dir]', 'asc')
-        order_mapping = {
-            '0': 'flight_no',
-            '1': 'airline_name',
-            '2': 'origin',
-            '3': 'destination',
-            '4': 'airline_code',
-            '5': 'flight_date',
-            '6': 'arrive_date',
-            '7': 'flight_time',
-            '8': 'flight_permit'
-        }
-        if order_type == 'asc':
-            flights = flights.order_by(f'-{order_mapping[order]}')
-        else:
-            flights = flights.order_by(f'{order_mapping[order]}')
+            if (val := request.POST.get('columns[8][search][value]', '').strip()):
+                flights = flights.filter(flight_permit=val)
 
-        page_size = int(request.POST.get('length', 10))
-        page_start = int(request.POST.get('start', 0))
-        data = {
-            "draw": int(request.POST.get('draw', 1)),
-            "recordsTotal": flights.count(),
-            "recordsFiltered": flights.count(),
-            "data": [
-            ]
-        }
-        flights = flights.all()[page_start:page_start + page_size]
+            order = request.POST.get('order[0][column]', '0')
+            order_type = request.POST.get('order[0][dir]', 'asc')
+            order_mapping = {
+                '0': 'flight_no',
+                '1': 'airline_name',
+                '2': 'origin',
+                '3': 'destination',
+                '4': 'airline_code',
+                '5': 'flight_date',
+                '6': 'arrive_date',
+                '7': 'flight_time',
+                '8': 'flight_permit'
+            }
 
-        for flight in flights:
-            print(flight.flightcrews_set)
-            data['data'].append(
-                {
+            order_field = order_mapping.get(order, 'flight_no')
+            if order_type == 'asc':
+                flights = flights.order_by(order_field)
+            else:
+                flights = flights.order_by(f'-' + order_field)
+
+            # صفحه‌بندی
+            page_size = int(request.POST.get('length', 10))
+            page_start = int(request.POST.get('start', 0))
+
+            total = flights.count()
+            flights = flights.all()[page_start:page_start + page_size]
+
+            data = {
+                "draw": int(request.POST.get('draw', 1)),
+                "recordsTotal": total,
+                "recordsFiltered": total,
+                "data": []
+            }
+
+            for flight in flights:
+                data['data'].append({
                     'Flight NO': flight.flight_no,
                     'Airline': flight.airline_name,
                     'Origin': flight.origin,
@@ -170,201 +190,298 @@ def data_tables(request):
                     'Arrive': flight.arrive_date.strftime('%Y-%m-%d %H:%M'),
                     'Flight Time': flight.flight_time,
                     'Permit': flight.flight_permit,
-                    # 'status':1
                 })
-        return JsonResponse(data, content_type='application/json', status=200)
-    else:
-        return
-        return JsonResponse({'message': "Method is invalid."}, content_type='application/json', status=400)
 
+            return JsonResponse(data, content_type='application/json', status=200)
 
-def create_flight(request):
-    if request.method == 'POST' and request.user.is_authenticated and request.user.is_active and (
-            request.user.is_superuser or request.user.is_staff):
-        origin = str(request.POST.get('origin', ''))
-        if len(origin) == 0:
-            return JsonResponse({'message': 'origin is empty.'}, status=400)
-
-        destination = str(request.POST.get('destination', ''))
-        if len(destination) == 0:
-            return JsonResponse({'message': 'Destination is empty.'}, status=400)
-
-        flight_no = str(request.POST.get('flight_no', ''))
-        if len(flight_no) == 0:
-            return JsonResponse({'message': 'Flight number is empty.'}, status=400)
-
-        if str(request.POST.get('flight_no_old', '')) != flight_no and Flights.objects.filter(
-                flight_no=flight_no).count() > 0:
-            return JsonResponse({'message': 'Flight number is duplicated.'}, status=400)
-
-        airline_name = str(request.POST.get('airline_name', ''))
-        if len(airline_name) == 0:
-            return JsonResponse({'message': 'Airline Name is empty.'}, status=400)
-
-        airline_code = str(request.POST.get('airline_code', ''))
-        if len(airline_code) == 0:
-            return JsonResponse({'message': 'Airline Code is empty.'}, status=400)
-
-        airline_type = str(request.POST.get('airline_type', ''))
-        if len(airline_type) == 0:
-            return JsonResponse({'message': 'Airline Type is empty.'}, status=400)
-
-        flight_date = str(request.POST.get('flight_date', ''))
-        try:
-            flight_date = datetime.datetime.strptime(flight_date, '%Y-%m-%d %H:%M')
-        except ValueError:
-            return JsonResponse({'message': 'Flight date is invalid.'}, status=400)
-
-        arrive_date = str(request.POST.get('arrive_date', ''))
-        try:
-            arrive_date = datetime.datetime.strptime(arrive_date, '%Y-%m-%d %H:%M')
-        except ValueError:
-            return JsonResponse({'message': 'Arrive date is invalid.'}, status=400)
-
-        if arrive_date <= flight_date:
-            return JsonResponse({'message': 'Arrive date is invalid.'}, status=400)
-
-        flight_permit = str(request.POST.get('flight_permit', ''))
-        if flight_permit not in ['PPL', 'CPL', 'ATPL', 'HPL', 'GPL']:
-            return JsonResponse({'message': 'Flight Permit is invalid.'}, status=400)
-
-        dif_time = arrive_date - flight_date
-        flight_time = ''
-
-        days = dif_time.days
-        hours = int(dif_time.total_seconds() // 3600)
-        minutes = int((dif_time.total_seconds() % 3600) // 60)
-        if minutes < 10:
-            flight_time = f'0{minutes}'
-        else:
-            flight_time = minutes
-        if hours < 10:
-            flight_time = f'0{hours}:{flight_time}'
-        else:
-            flight_time = f'{hours}:{flight_time}'
-
-        if days > 1:
-            flight_time = f'{days} Days and {flight_time}'
-        elif days == 1:
-            flight_time = f'{days} Day and {flight_time}'
-        flight_date = flight_date.strftime('%Y-%m-%d %H:%M')
-        arrive_date = arrive_date.strftime('%Y-%m-%d %H:%M')
-        try:
-            if str(request.POST.get('flight_no_old', '')) != 'null':
-                flight = Flights.objects.filter(flight_no=str(request.POST.get('flight_no_old', '')))[0]
-                flight.origin = origin
-                flight.destination = destination
-                flight.airline_name = airline_name
-                flight.airline_code = airline_code
-                flight.airline_type = airline_type
-                flight.flight_date = flight_date
-                flight.arrive_date = arrive_date
-                flight.flight_time = flight_time
-                flight.flight_permit = flight_permit
-                flight.save()
-            else:
-                Flights.objects.create(
-                    origin=origin,
-                    destination=destination,
-                    flight_no=flight_no,
-                    airline_name=airline_name,
-                    airline_code=airline_code,
-                    airline_type=airline_type,
-                    flight_date=flight_date,
-                    arrive_date=arrive_date,
-                    flight_time=flight_time,
-                    flight_permit=flight_permit,
-                    status='SCHEDULED',
-                    total_seats=None  # Set to None since it's optional
-                )
-            return JsonResponse({'message': 'success', 'flight_no': flight_no}, status=200)
         except Exception as e:
-            return JsonResponse({'message': f'Unknown error occurred: {str(e)}'}, status=400)
-    return JsonResponse({'message': 'Request type is invalid.'}, status=400)
+            return JsonResponse({'message': f'Server error: {str(e)}'}, content_type='application/json', status=500)
+
+    return JsonResponse({'message': "Method is invalid."}, content_type='application/json', status=400)
 
 
-def get_crews(request):
-    if request.method == 'POST' and request.user.is_authenticated and request.user.is_active:
-        flight_no = request.POST.get('flight_no', '')
-        data = {
-            'flight_no': flight_no,
-            'Flight_PI': [],
-            'Flight_CO_PI': [],
-            'Flight_FL_EN': [],
-            'Flight_FL_ATE': [],
-            'PI': [],
-            'CO_PI': [],
-            'FL_EN': [],
-            'FL_ATE': [],
-        }
 
-        if Flights.objects.filter(pk=flight_no).count() == 1:
-            if not request.user.is_superuser and not request.user.is_staff and FlightCrews.objects.filter(
-                    flight_id=flight_no, user_id=request.user.id).count() == 0:
-                return JsonResponse({'message': 'Request is invalid.'}, status=400)
+#A portion of the flight hours restrictions are recorded here for each crew member and sent to View(update_crew). It is reviewed here, and flight information is not recorded here until the crew member section is approved.
+def create_flight(request):
+    
 
-            # Get existing crew assignments for this flight
-            crews = FlightCrews.objects.filter(flight_id=flight_no)
-            for crew in crews:
-                if crew.role == 'PI':
-                    data['Flight_PI'].append(crew.crew_member.id)
-                elif crew.role == 'CO-PI':
-                    data['Flight_CO_PI'].append(crew.crew_member.id)
-                elif crew.role == 'FL-EN':
-                    data['Flight_FL_EN'].append(crew.crew_member.id)
-                elif crew.role == 'FL-ATE':
-                    data['Flight_FL_ATE'].append(crew.crew_member.id)
+    FLIGHT_PERMIT_LIMITS = {
+        'PPL': 8,
+        'CPL': 14,
+        'ATPL': 14,
+        'HPL': 8,
+        'GPL': 5
+    }
 
-            # Get available crew members for each role
-            for crew in CrewMember.objects.filter(role='PI', is_active=True):
-                data['PI'].append(
-                    {'id': crew.id, 'name': f"{crew.first_name} {crew.last_name} (L:{crew.expertise_level})"})
+    max_flight_duty_period = 14
 
-            for crew in CrewMember.objects.filter(role='CO-PI', is_active=True):
-                data['CO_PI'].append(
-                    {'id': crew.id, 'name': f"{crew.first_name} {crew.last_name} (L:{crew.expertise_level})"})
-
-            for crew in CrewMember.objects.filter(role='FL-EN', is_active=True):
-                data['FL_EN'].append(
-                    {'id': crew.id, 'name': f"{crew.first_name} {crew.last_name} (L:{crew.expertise_level})"})
-
-            for crew in CrewMember.objects.filter(role='FL-ATE', is_active=True):
-                data['FL_ATE'].append(
-                    {'id': crew.id, 'name': f"{crew.first_name} {crew.last_name} (L:{crew.expertise_level})"})
-            
-            return JsonResponse(data, status=200)
-        else:
-            return JsonResponse({'message': 'Flight is invalid.'}, status=400)
-    return JsonResponse({'message': 'Request is invalid.'}, status=400)
-
-
-def update_crews(request):
     if request.method == 'POST' and request.user.is_authenticated and request.user.is_active and (
-            request.user.is_superuser or request.user.is_staff):
-        flight_no = request.POST.get('flight_no', '')
-        if Flights.objects.filter(pk=flight_no).count() == 1:
-            FlightCrews.objects.filter(flight_id=flight_no).delete()
-            if request.POST.get('pi', '').isnumeric():
-                crew = CrewMember.objects.get(id=request.POST.get('pi'))
-                FlightCrews.objects.create(flight_id=flight_no, crew_member=crew, role='PI')
-            if request.POST.get('co-pi', '').isnumeric():
-                crew = CrewMember.objects.get(id=request.POST.get('co-pi'))
-                FlightCrews.objects.create(flight_id=flight_no, crew_member=crew, role='CO-PI')
-            if request.POST.get('en', '').isnumeric():
-                crew = CrewMember.objects.get(id=request.POST.get('en'))
-                FlightCrews.objects.create(flight_id=flight_no, crew_member=crew, role='FL-EN')
-            crews = request.POST.get('crews', '').split(',')
-            for crew_id in crews:
-                if crew_id.isnumeric():
-                    crew = CrewMember.objects.get(id=crew_id)
-                    FlightCrews.objects.create(flight_id=flight_no, crew_member=crew, role='FL-ATE')
-            return JsonResponse({'message': "Saved successfully."}, status=200)
-        else:
-            return JsonResponse({'message': 'Flight is invalid.'}, status=400)
-    else:
+        request.user.is_superuser or request.user.is_staff
+    ):
+        try:
+            origin = request.POST.get('origin', '').strip()
+            destination = request.POST.get('destination', '').strip()
+            flight_no = request.POST.get('flight_no', '').strip()
+            airline_name = request.POST.get('airline_name', '').strip()
+            airline_code = request.POST.get('airline_code', '').strip()
+            airline_type = request.POST.get('airline_type', '').strip()
+            flight_permit = request.POST.get('flight_permit', '').strip()
+            flight_date_str = request.POST.get('flight_date', '').strip()
+            arrive_date_str = request.POST.get('arrive_date', '').strip()
+
+            required_fields = {
+                "origin": origin,
+                "destination": destination,
+                "flight_no": flight_no,
+                "airline_name": airline_name,
+                "airline_code": airline_code,
+                "airline_type": airline_type,
+                "flight_permit": flight_permit,
+                "flight_date": flight_date_str,
+                "arrive_date": arrive_date_str,
+            }
+
+            missing_fields = [key for key, val in required_fields.items() if not val]
+            if missing_fields:
+               return JsonResponse({'message': f'The following required fields are missing: {", ".join(missing_fields)}'}, status=400)
+
+
+            if flight_permit not in FLIGHT_PERMIT_LIMITS:
+                return JsonResponse({'message': 'Flight permit is invalid.'}, status=400)
+
+            if Flights.objects.filter(flight_no=flight_no).exists():
+                return JsonResponse({'message': 'Flight number already exists.'}, status=400)
+
+            flight_date = datetime.datetime.strptime(flight_date_str, '%Y-%m-%d %H:%M')
+            arrive_date = datetime.datetime.strptime(arrive_date_str, '%Y-%m-%d %H:%M')
+
+            if arrive_date <= flight_date:
+                return JsonResponse({'message': 'Arrive time must be after departure time.'}, status=400)
+
+            flight_hours = (arrive_date - flight_date).total_seconds() / 3600
+            if flight_hours > max_flight_duty_period:
+                return JsonResponse({'message': f'Flight time exceeds max duty period ({max_flight_duty_period}h).'}, status=400)
+
+           
+            hours = int(flight_hours)
+            minutes = int((flight_hours - hours) * 60)
+            flight_time = f"{hours:02d}:{minutes:02d}"
+
+           
+            flight = Flights.objects.create(
+                origin=origin,
+                destination=destination,
+                flight_no=flight_no,
+                airline_name=airline_name,
+                airline_code=airline_code,
+                airline_type=airline_type,
+                flight_date=flight_date,
+                arrive_date=arrive_date,
+                flight_time=flight_time,
+                flight_permit=flight_permit,
+                total_seats=None,
+                status='DRAFT'
+            )
+
+            return JsonResponse({'message': 'The flight has been saved as a draft.', 'flight_no': flight_no}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'message': f'A system error occurred: {str(e)}'}, status=400)
+    return JsonResponse({'message': 'Invalid request.'}, status=400)
+
+
+
+
+
+#Flight restrictions are being reviewed in this section.
+def get_crews(request):
+    if request.method != 'POST' or not request.user.is_authenticated or not request.user.is_active:
         return JsonResponse({'message': 'Request is invalid.'}, status=400)
 
+    flight_no = request.POST.get('flight_no', '')
+    if not Flights.objects.filter(pk=flight_no).exists():
+        return JsonResponse({'message': 'Flight is invalid.'}, status=400)
 
+    flight = Flights.objects.get(pk=flight_no)
+    flight_day = flight.flight_date.date()
+    flight_hours = (flight.arrive_date - flight.flight_date).total_seconds() / 3600
+
+    def is_available(crew):
+        overlapping = Flights.objects.filter(
+            flightcrews__crew_member=crew,
+            flight_date__lt=flight.arrive_date,
+            arrive_date__gt=flight.flight_date
+        ).exclude(flight_no=flight.flight_no).exists()
+
+        if overlapping:
+            return False
+
+        def calc_hours(start, end):
+            flights = Flights.objects.filter(
+                flightcrews__crew_member=crew,
+                flight_date__date__gte=start,
+                flight_date__date__lte=end
+            ).exclude(flight_no=flight.flight_no)
+            return sum((f.arrive_date - f.flight_date).total_seconds() / 3600 for f in flights)
+
+        # Information collection for each crew role is taken here.
+        if calc_hours(flight_day, flight_day) + flight_hours > 8:
+            return False
+        if calc_hours(flight_day - timedelta(days=6), flight_day) + flight_hours > 60:
+            return False
+        if calc_hours(flight_day - timedelta(days=27), flight_day) + flight_hours > 112:
+            return False
+        if calc_hours(flight_day.replace(month=1, day=1), flight_day) + flight_hours > 1000:
+            return False
+
+        return True
+
+    def get_crew(role_code, flight_role_key):
+        available = []
+        assigned_ids = []
+
+        crews = FlightCrews.objects.filter(flight_id=flight_no, role=flight_role_key)
+        for fc in crews:
+            assigned_ids.append(fc.crew_member.id)
+
+        for crew in CrewMember.objects.filter(role=role_code, is_active=True):
+            if is_available(crew) or crew.id in assigned_ids:
+                available.append({
+                    'id': crew.id,
+                    'name': f"{crew.first_name} {crew.last_name} (L:{crew.expertise_level})"
+                })
+
+        return available, assigned_ids
+
+    data = {
+        'flight_no': flight_no,
+    }
+
+    # Information collection for each crew role is taken here.
+    data['PI'], data['Flight_PI'] = get_crew('PI', 'PI')
+    data['CO_PI'], data['Flight_CO_PI'] = get_crew('CO-PI', 'CO-PI')
+    data['FL_EN'], data['Flight_FL_EN'] = get_crew('FL-EN', 'FL-EN')
+    data['FL_ATE'], data['Flight_FL_ATE'] = get_crew('FL-ATE', 'FL-ATE')
+
+    return JsonResponse(data, status=200)
+
+
+
+#Here, the hours of restrictions are checked and error management is performed, and if flight hours are calculated.
+
+def update_crews(request):
+    if request.method != 'POST' or not request.user.is_authenticated or not request.user.is_active or not (request.user.is_superuser or request.user.is_staff):
+        return JsonResponse({'message': 'Invalid request.'}, status=400)
+
+    flight_no = request.POST.get('flight_no', '').strip()
+    if not flight_no or not Flights.objects.filter(flight_no=flight_no).exists():
+        return JsonResponse({'message': 'Flight not found.'}, status=400)
+
+    flight = Flights.objects.get(flight_no=flight_no)
+    flight_day = flight.flight_date.date()
+    flight_hours = (flight.arrive_date - flight.flight_date).total_seconds() / 3600
+
+    
+    pi_id = request.POST.get('pi', '').strip()
+    co_pi_id = request.POST.get('co-pi', '').strip()
+    en_id = request.POST.get('en', '').strip()
+    fl_ates_str = request.POST.get('crews', '').strip()
+    fl_ates = fl_ates_str.split(',') if fl_ates_str else []
+
+   
+    if not (pi_id.isnumeric() and co_pi_id.isnumeric() and en_id.isnumeric()):
+        return JsonResponse({'message': 'Pilot, co-pilot, and flight engineer must be selected.'}, status=400)
+
+
+    crew_ids = [pi_id, co_pi_id, en_id] + [cid for cid in fl_ates if cid.isnumeric()]
+    crew_ids = list(set(crew_ids)) 
+
+    crew_members = CrewMember.objects.filter(id__in=crew_ids)
+    if crew_members.count() != len(crew_ids):
+        return JsonResponse({'message': 'Some crew members are invalid.'}, status=400)
+
+ 
+    def calc_total_hours(crew, start_date, end_date):
+        flights = Flights.objects.filter(
+            flightcrews__crew_member=crew,
+            flight_date__date__gte=start_date,
+            flight_date__date__lte=end_date
+        ).exclude(flight_no=flight.flight_no).distinct()
+        return sum((f.arrive_date - f.flight_date).total_seconds() / 3600 for f in flights)
+
+    for crew in crew_members:
+        overlapping_flights = Flights.objects.filter(
+                flightcrews__crew_member=crew,
+                flight_date__lt=flight.arrive_date,
+                arrive_date__gt=flight.flight_date
+            ).exclude(flight_no=flight.flight_no)
+
+        if overlapping_flights.exists():
+                return JsonResponse({
+                    'message': f"{crew} has overlapping flights at the same time."
+                }, status=400)
+
+        total_day = calc_total_hours(crew, flight_day, flight_day)
+        if total_day + flight_hours > 8:
+            return JsonResponse({
+                'message': f"{crew} exceeds the daily limit of 8 hours. Current hours: {total_day:.1f}h + {flight_hours:.1f}h"
+            }, status=400)
+
+        
+        week_start = flight_day - timedelta(days=6)
+        total_week = calc_total_hours(crew, week_start, flight_day)
+        if total_week + flight_hours > 60:
+            return JsonResponse({
+                'message': f"{crew} exceeds the weekly limit of 60 hours. Current: {total_week:.1f}h + {flight_hours:.1f}h"
+            }, status=400)
+
+        
+        month_28_start = flight_day - timedelta(days=27)
+        total_28_days = calc_total_hours(crew, month_28_start, flight_day)
+        if total_28_days + flight_hours > 112:
+            return JsonResponse({
+                'message': f"{crew} exceeds the 28-day limit (112 hours). Current: {total_28_days:.1f}h + {flight_hours:.1f}h"
+            }, status=400)
+
+        
+        year_start = flight_day.replace(month=1, day=1)
+        total_year = calc_total_hours(crew, year_start, flight_day)
+        if total_year + flight_hours > 1000:
+            return JsonResponse({
+                'message': f"{crew} exceeds the annual limit (1000 hours). Current: {total_year:.1f}h + {flight_hours:.1f}h"
+            }, status=400)
+
+    
+    FlightCrews.objects.filter(flight=flight).delete()
+
+    def assign_role(crew_id, role):
+        try:
+            crew = CrewMember.objects.get(id=crew_id)
+            FlightCrews.objects.create(flight=flight, crew_member=crew, role=role)
+        except CrewMember.DoesNotExist:
+            pass
+
+    assign_role(pi_id, 'PI')
+    assign_role(co_pi_id, 'CO-PI')
+    assign_role(en_id, 'FL-EN')
+    for crew_id in fl_ates:
+        if crew_id.isnumeric():
+            assign_role(crew_id, 'FL-ATE')
+
+    
+    if FlightCrews.objects.filter(flight=flight).count() < 3:
+        return JsonResponse({'message': 'At least 3 main crew members must be registered.'}, status=400)
+
+
+    flight.status = 'SCHEDULED'
+    flight.save()
+
+    return JsonResponse({'message': 'Saved successfully.'}, status=200)
+
+
+
+
+  
 def get_filters(request):
     if request.method == 'POST':
         data = {
@@ -420,3 +537,162 @@ def assign_crew(request, flight_id):
         'flight_engineers': flight_engineers,
         'flight_attendants': flight_attendants
     })
+
+
+
+@csrf_exempt
+def available_crew(request):
+    if request.method != 'POST':
+        return JsonResponse({'message': 'Invalid request method'}, status=400)
+
+    try:
+        flight_id = request.POST.get('flight_id', '')
+        if not flight_id:
+            return JsonResponse({'message': 'Flight ID is required'}, status=400)
+
+        flight = Flights.objects.get(id=flight_id)
+        flight_start = flight.flight_date
+        flight_end = flight.arrive_date
+
+        overlapping = Flights.objects.filter(
+            flightcrews__crew_member__isnull=False,
+            flight_date__lt=flight_end,
+            arrive_date__gt=flight_start
+        ).exclude(id=flight.id).values_list('flightcrews__crew_member_id', flat=True)
+
+        available_crew = CrewMember.objects.exclude(id__in=overlapping).filter(is_active=True)
+
+        crew_list = [
+            {
+                'id': c.id,
+                'name': f"{c.first_name} {c.last_name}",
+                'role': c.get_role_display()
+            }
+            for c in available_crew
+        ]
+
+        return JsonResponse({'crew': crew_list}, status=200)
+
+    except Flights.DoesNotExist:
+        return JsonResponse({'message': 'Flight not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'message': f'Error: {str(e)}'}, status=500)
+
+
+
+
+
+# The section displays the history of each crew based on the user's selection in the selected time period of flight hours and calculates the remaining hours.
+@csrf_exempt
+def crew_flight_summary(request):
+    if request.method == 'POST' and request.user.is_authenticated and request.user.is_active:
+        try:
+            crew_id = request.POST.get('crew_id')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+
+            if not crew_id or not start_date or not end_date:
+                return JsonResponse({'message': 'All fields are required.'}, status=400)
+
+            try:
+                crew = CrewMember.objects.get(pk=crew_id)
+            except CrewMember.DoesNotExist:
+                return JsonResponse({'message': 'Crew member not found.'}, status=404)
+
+            try:
+                start_dt = make_aware(datetime.datetime.strptime(start_date, '%Y-%m-%d'))
+                end_dt = make_aware(datetime.datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1))
+            except ValueError:
+                return JsonResponse({'message': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+
+           
+            flights = Flights.objects.filter(
+                flightcrews__crew_member=crew,
+                flight_date__gte=start_dt,
+                flight_date__lt=end_dt
+            ).distinct()
+
+            total_hours = 0
+            flight_list = []
+            for f in flights:
+                duration = (f.arrive_date - f.flight_date).total_seconds() / 3600
+                total_hours += duration
+                flight_list.append({
+                    'flight_no': f.flight_no,
+                    'origin': f.origin,
+                    'destination': f.destination,
+                    'departure': f.flight_date.strftime('%Y-%m-%d %H:%M'),
+                    'arrival': f.arrive_date.strftime('%Y-%m-%d %H:%M'),
+                    'hours': f"{duration:.2f}"
+                })
+
+            
+            now = end_dt
+            period_starts = {
+                'day': now - timedelta(days=1),
+                'week': now - timedelta(days=7),
+                '28_days': now - timedelta(days=28),
+                'year': now - timedelta(days=365)
+            }
+
+            def get_hours_in_period(start, end):
+                return sum(
+                    (f.arrive_date - f.flight_date).total_seconds() / 3600
+                    for f in Flights.objects.filter(
+                        flightcrews__crew_member=crew,
+                        flight_date__gte=start,
+                        flight_date__lt=end
+                    ).distinct()
+                )
+
+            # محاسبه ساعات در بازه‌های مختلف
+            hours_day = get_hours_in_period(period_starts['day'], now)
+            hours_week = get_hours_in_period(period_starts['week'], now)
+            hours_28 = get_hours_in_period(period_starts['28_days'], now)
+            hours_year = get_hours_in_period(period_starts['year'], now)
+
+            
+            limits = {
+                'daily': 8,
+                'weekly': 40,
+                '28_days': 100,
+                'year': 1000
+            }
+
+            summary = {
+                'crew': str(crew),
+                'role': crew.get_role_display() if hasattr(crew, 'get_role_display') else crew.role,
+                'flight_permit': 'GENERAL',  # فرضی
+                'date_range': f"{start_date} → {end_date}",
+                'days': (end_dt.date() - start_dt.date()).days,
+                'flights_count': len(flight_list),
+                'total_hours_in_period': f"{total_hours:.2f}",
+
+                # ساعات استفاده‌شده در هر بازه
+                'used_daily': f"{hours_day:.2f}",
+                'used_weekly': f"{hours_week:.2f}",
+                'used_28_day': f"{hours_28:.2f}",
+                'used_yearly': f"{hours_year:.2f}",
+
+                # محدودیت‌ها
+                'max_allowed_daily': limits['daily'],
+                'max_allowed_weekly': limits['weekly'],
+                'max_allowed_28_days': limits['28_days'],
+                'max_allowed_yearly': limits['year'],
+
+                # ساعات باقی‌مانده
+                'remaining_daily': f"{limits['daily'] - hours_day:.2f}",
+                'remaining_weekly': f"{limits['weekly'] - hours_week:.2f}",
+                'remaining_28_day': f"{limits['28_days'] - hours_28:.2f}",
+                'remaining_yearly': f"{limits['year'] - hours_year:.2f}",
+
+                
+                'flights': flight_list
+            }
+
+            return JsonResponse({'summary': summary}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'message': f'Error: {str(e)}'}, status=500)
+
+    return JsonResponse({'message': 'Unauthorized or invalid request.'}, status=403)

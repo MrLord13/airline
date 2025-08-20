@@ -1,0 +1,150 @@
+{% extends 'panel/layouts/panel.base.html' %}
+{% load static %}
+{% block page_content %}
+
+<div class="card">
+  <style>
+    .custom-text-style {
+      color: #2a2f5b;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  </style>
+
+  <div class="card-header">
+    <h4 class="mb-0 custom-text-style">History</h4>
+  </div>
+
+  <div class="card-body">
+    <form id="crew-summary-form" class="row g-3">
+      <div class="col-md-4">
+        <label for="crew_input" class="form-label">Crew Member (Name & Surname)</label>
+        <input list="crew_list" id="crew_input" name="crew_input" class="form-control" placeholder="Type name and surname..." autocomplete="off" required>
+        <input type="hidden" id="crew_id" name="crew_id">
+        <datalist id="crew_list">
+          {% for member in crew_members %}
+            <option value="{{ member.get_full_name }}"></option>
+          {% endfor %}
+        </datalist>
+      </div>
+
+      <div class="col-md-4">
+        <label for="start_date" class="form-label">Start Date</label>
+        <input type="date" name="start_date" id="start_date" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label for="end_date" class="form-label">End Date</label>
+        <input type="date" name="end_date" id="end_date" class="form-control" required>
+      </div>
+
+      <div class="col-12 text-end mt-3">
+        <button type="submit" class="btn btn-primary">Get Summary</button>
+      </div>
+    </form>
+
+    <div id="summary-result" class="mt-4"></div>
+
+    <script>
+      const crewMap = [
+        {% for member in crew_members %}
+          { name: "{{ member.get_full_name|escapejs }}", id: "{{ member.id }}" },
+        {% endfor %}
+      ];
+
+      const crewInput = document.getElementById("crew_input");
+      const crewIdInput = document.getElementById("crew_id");
+
+      crewInput.addEventListener("input", () => {
+        const val = crewInput.value.trim();
+        const found = crewMap.find(c => c.name === val);
+        crewIdInput.value = found ? found.id : "";
+      });
+
+      document.getElementById("crew-summary-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        if (!crewIdInput.value) {
+          alert("Please select a crew member from the list.");
+          crewInput.focus();
+          return;
+        }
+
+        const startDate = document.getElementById("start_date").value;
+        const endDate = document.getElementById("end_date").value;
+
+        if (!startDate || !endDate) {
+          alert("Please fill in start and end dates.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("crew_id", crewIdInput.value);
+        formData.append("start_date", startDate);
+        formData.append("end_date", endDate);
+
+        fetch("{% url 'crew_flight_summary' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("summary-result");
+          if (data.summary) {
+            const s = data.summary;
+            let html = `
+              <h5 class="mt-4 text-primary">Summary for ${s.crew} (${s.role})</h5>
+              <p><strong>Permit:</strong> ${s.flight_permit}</p>
+              <p><strong>Date Range:</strong> ${s.date_range} (${s.days} days)</p>
+              <p><strong>Total Flights:</strong> ${s.flights_count} — <strong>Total Hours:</strong> ${s.total_hours_in_period}</p>
+              <hr>
+              <h6>Limits & Remaining Hours:</h6>
+              <ul>
+                <li>Daily Limit: ${s.max_allowed_daily}h — Used: ${s.used_daily} — Remaining: ${s.remaining_daily}</li>
+                <li>Weekly Limit: ${s.max_allowed_weekly}h — Used: ${s.used_weekly} — Remaining: ${s.remaining_weekly}</li>
+                <li>28-Day Limit: ${s.max_allowed_28_days}h — Used: ${s.used_28_day} — Remaining: ${s.remaining_28_day}</li>
+                <li>Annual Limit: ${s.max_allowed_yearly}h — Used: ${s.used_yearly} — Remaining: ${s.remaining_yearly}</li>
+              </ul>
+              <hr>
+              <h6>Flight Details:</h6>
+              <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                  <tr>
+                    <th>Flight No</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Hours</th>
+                  </tr>
+                </thead>
+                <tbody>`;
+            for (let f of s.flights) {
+              html += `
+                <tr>
+                  <td>${f.flight_no}</td>
+                  <td>${f.origin}</td>
+                  <td>${f.destination}</td>
+                  <td>${f.departure}</td>
+                  <td>${f.arrival}</td>
+                  <td>${f.hours}</td>
+                </tr>`;
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `<div class="alert alert-warning">${data.message || "No summary available."}</div>`;
+          }
+        })
+        .catch(err => {
+          document.getElementById("summary-result").innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+        });
+      });
+    </script>
+  </div>
+</div>
+
+{% endblock %}
