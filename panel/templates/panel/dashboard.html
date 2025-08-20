@@ -1,0 +1,150 @@
+{% extends 'panel/layouts/panel.base.html' %}
+
+{% block page_head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            color: #ffffff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+        .debug-info {
+            display: none;
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Debug Information -->
+    <div class="debug-info">
+        <h4>Debug Information:</h4>
+        <p>User Stats: {{ user_stats|default:"No data" }}</p>
+        <p>Flight Stats: {{ flight_stats|default:"No data" }}</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="icon-user stat-icon"></i>
+                    <div class="stat-value">{{ user_stats.total|default:"0" }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="icon-check stat-icon"></i>
+                    <div class="stat-value">{{ user_stats.active|default:"0" }}</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="icon-plane stat-icon"></i>
+                    <div class="stat-value">{{ flight_stats.total|default:"0" }}</div>
+                    <div class="stat-label">Total Flights</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="icon-calendar stat-icon"></i>
+                    <div class="stat-value">{{ flight_stats.upcoming|default:"0" }}</div>
+                    <div class="stat-label">Upcoming Flights</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Flights Chart -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Monthly Flights (Last 12 Months)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="monthlyFlightsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // Monthly Flights Chart
+    new Chart(document.getElementById('monthlyFlightsChart'), {
+        type: 'line',
+        data: {
+            labels: {{ monthly_stats.labels|safe }},
+            datasets: [{
+                label: 'Number of Flights',
+                data: {{ monthly_stats.data|safe }},
+                borderColor: '#36A2EB',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

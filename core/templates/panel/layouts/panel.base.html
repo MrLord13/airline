@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+    {#    <link rel="icon" href="" type="image/x-icon"/>#}
+    {% block page_head %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/panel/plugins.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'fonts/Simple-Line-Icons/simple-line-icons.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/panel/style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/panel/custom.css' %}"/>
+    {% block css %}{% endblock %}
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" data-background-color="white">
+        <div class="sidebar-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="custom" custom-color="#149CB4">
+                <a href="/dashboard" class="logo">
+                    <img
+                            src="{% static '/img/logo.png' %}"
+                            alt="navbar brand"
+                            class="navbar-brand" 
+                    />
+                </a>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar">
+                        <i class="gg-menu-right"></i>
+                    </button>
+                    <button class="btn btn-toggle sidenav-toggler">
+                        <i class="gg-menu-left"></i>
+                    </button>
+                </div>
+                <button class="topbar-toggler more">
+                    <i class="gg-more-vertical-alt"></i>
+                </button>
+            </div>
+            <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+            <div class="sidebar-content">
+                <ul class="nav nav-secondary">
+                    <li class="nav-item">
+                        <a href="/dashboard/" class="nav-link">
+                            <i class="icon-screen-desktop"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'profile' %}" class="nav-link">
+                            <i class="icon-user"></i>
+                            <p>My Profile</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="/dashboard/flights/" class="nav-link">
+                            <i class="icon-plane"></i>
+                            <p>Flights</p>
+                        </a>
+                    </li>
+                  
+                
+                    {% if request.user.is_superuser %} 
+                        <li class="nav-item">
+                            <a href="/dashboard/admins/" class="nav-link">
+                                <i class="icon-user"></i>
+                                <p>Admins</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/crews/" class="nav-link">
+                                <i class="icon-people"></i>
+                                <p>Crews</p>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a href="/logout/" class="nav-link">
+                            <i class="icon-logout"></i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- End Sidebar -->
+
+    <div class="main-panel">
+        <div class="main-header">
+            <div class="main-header-logo">
+                <!-- Logo Header -->
+                <div class="logo-header" data-background-color="custom" custom-color="#149CB4">
+                    <a href="index.html" class="logo">
+                        <img
+                                src="{% static '/img/logo.png' %}"
+                                alt="navbar brand"
+                                class="navbar-brand" 
+                        />
+                    </a>
+                    <div class="nav-toggle">
+                        <button class="btn btn-toggle toggle-sidebar">
+                            <i class="gg-menu-right"></i>
+                        </button>
+                        <button class="btn btn-toggle sidenav-toggler">
+                            <i class="gg-menu-left"></i>
+                        </button>
+                    </div>
+                    <button class="topbar-toggler more">
+                        <i class="gg-more-vertical-alt"></i>
+                    </button>
+                </div>
+                <!-- End Logo Header -->
+            </div>
+            <!-- Navbar Header -->
+            <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
+                 data-background-color="custom" custom-color="#149CB4">
+                <div class="container-fluid">
+                    <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                        <li class="nav-item topbar-user dropdown hidden-caret">
+                            <a class="dropdown-toggle profile-pic"
+                               data-bs-toggle="dropdown"
+                               href="#"
+                               aria-expanded="false">
+                                <span class="profile-username">
+                                  <span class="op-7">Hi,</span>
+                                  <span class="fw-bold">{{ request.user.username }}</span>
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                <div class="dropdown-user-scroll scrollbar-outer">
+                                    <li>
+                                        <div class="user-box">
+                                            <div class="u-text">
+                                                <h4>{{ request.user.username }}</h4>
+                                                <p class="text-muted">{{ request.user.email }}</p>
+                                                <a href="{% url 'profile' %}" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="{% url 'profile' %}">My Profile</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="{% url 'logout_page' %}">Logout</a>
+                                    </li>
+                                </div>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- End Navbar -->
+        </div>
+        <div class="container">
+            <div class="page-inner">
+                <div class="page-header">
+                    <h3 class="fw-bold mb-3">{{ page_title }}</h3>
+                    <ul class="breadcrumbs mb-3">
+                        <li class="nav-home">
+                            <a href="/dashboard">
+                                <i class="icon-home"></i>
+                            </a>
+                        </li>
+                        {% for breadcrumb in breadcrumbs %}
+                            <li class="separator">
+                                <i class="icon-arrow-right"></i>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="row">
+                    {% block page_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--   Core JS Files   -->
+<script src="{% static 'js/core/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/core/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/core/popper.min.js' %}"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="{% static 'js/plugin/jquery-scrollbar/jquery.scrollbar.min.js' %}"></script>
+
+{% block js %}
+
+{% endblock %}
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

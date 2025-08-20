@@ -1,0 +1,270 @@
+{% extends 'layouts/theme.base.html' %}
+
+{% load static %}
+
+{% block homeHeader %}
+    <div class="hero-section">
+        <div class="container">
+            <div class="row d-flex justify-content-around">
+                <div class="col-4">
+                    <img src="{% static '/img/hero-img-1.jpg' %}" alt="" class="hero-header-image"/>
+                </div>
+                <div class="col-4 d-flex justify-content-end">
+                    <div class="hero-slider">
+                        <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <h2>LineOps Crewing Company</h2>
+                                </div>
+                                <div class="swiper-slide">
+                                    <h2>Automated Aviation Crew Scheduling System</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-shape">
+        <img src="{% static '/img/hero-bg-shape-1.svg' %}" alt="">
+    </div>
+{% endblock %}
+
+{% block content %}
+    <section class="container">
+        <div class="row">
+            <div class="col-4">
+                <div class="slider">
+                    <div class="swiper-container">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <h2>What Is LineOps?</h2>
+                                <p>
+                                    -Introducing LineOps, a platform that helps airlines quickly identify which crews, vehicles and equipment are available for work and improves the ability to assign, manage and track these resources. 
+
+                                    <label>We are the best, we will prove it.</label>
+                                </p>
+                            </div>
+                            <div class="swiper-slide">
+                                <h2>LineOps Crewing</h2>
+                                <p>
+                                    -The system integrates with airlines’ scheduling systems to create rosters and then uses proprietary algorithms to contact flight crews who are available for pending trips by centralizing resources, provide a crew management system with real-time views into which crews are where, who is available to work, where resources are located and how much money is being spent.
+                                    <label>We don't just say slogans, we act.</label>
+                                </p>
+                            </div>
+                            <div class="swiper-slide">
+                                <h2>LineOps Crewing</h2>
+                                <p>
+                                    -The current tools used by airlines are severely underdeveloped, with significant problems, including, but not limited to, flight cancellations, scheduling limitations, communication challenges, resulting in increased time and money for the airlines.
+                                    <label>Compare the quality of work.</label>
+                                </p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="home-about-box first">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="home-about-box second">
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="pt-5">
+        <div class="container post-list">
+            <div class="d-flex justify-content-center pb-5">
+                <h2 class="box-header"> Our latest news</h2>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="post">
+                        <div class="post-img">
+                            <img src="http://lineops-crewing.com/111.png" alt="" height="450px">
+                        </div>
+                        <div class="col-12 p-3">
+                            <div class="post-content">
+                                <a href="/" class="post-link">
+                                    <h2 class="post-title">✈️🌟 The Future of Air Travel: AI Innovations Reshaping Canadian Airlines' Scheduling Processes 🇨🇦🚀</h2>
+                                </a>
+                                <div class="post-time">May 11, 2025</div>
+                                <a href="/blogs" class="post-more">Read Post</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="post">
+                        <div class="post-img">
+                            <img src="http://lineops-crewing.com/222.png" alt="" height="450px">
+                        </div>
+                        <div class="col-12 p-3">
+                            <div class="post-content">
+                                <a href="/" class="post-link">
+                                    <h2 class="post-title">✈️📊 Predictive Analytics in Aviation: The Role of AI in Optimizing Canadian Flight Operations 🇨🇦✨</h2>
+                                </a>
+                                <div class="post-time">May 11, 2025</div>
+                                <a href="/blogs" class="post-more">Read Post</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="post">
+                        <div class="post-img">
+                            <img src="http://lineops-crewing.com/333.png" alt="" height="450px">
+                        </div>
+                        <div class="col-12 p-3">
+                            <div class="post-content">
+                                <a href="/" class="post-link">
+                                    <h2 class="post-title">✈️✨ Elevating Efficiency: How AI Is Transforming Flight Scheduling for Canadian Airlines 🇨🇦🌟</h2>
+                                </a>
+                                <div class="post-time">May 11, 2025</div>
+                                <a href="/blogs" class="post-more">Read Post</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {#    <section class="container">#}
+    {#        <div class="row">#}
+    {#            <div class="col-3">#}
+    {#                <h3>100% newest fleet available</h3>#}
+    {#                <p>We possess the newest fleet that allows you to be trained and then work in the best environment.</p>#}
+    {#            </div>#}
+    {#            <div class="col-3">#}
+    {#                <h3>New professional simulators</h3>#}
+    {#                <p>Advanced training makes us go on the leading edge owing to the State-of-the-art equipment.</p>#}
+    {#            </div>#}
+    {#            <div class="col-3">#}
+    {#                <h3>12,000+ pilots accredited</h3>#}
+    {#                <p>AThis fact proves that you'll be at the academy that supplies the world's airlines with the best#}
+    {#                    pilots.</p>#}
+    {#            </div>#}
+    {#            <div class="col-3">#}
+    {#                <h3>Fully accredited and secure</h3>#}
+    {#                <p>As a fully accredited flight academy, we have built our name of reputation for over 25 years.</p>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </section>#}
+
+    <section>
+        <div class="container" id="accordion">
+            <div class="row justify-content-center">
+                <h4 class="text-center">Frequently Questions</h4>
+                <p class="text-center">You might be looking for the answers to these questions.</p>
+            </div>
+            <div class="row">
+                <div class="col-6 mt-4">
+                    <div class="card">
+                        <div class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#collapse1"
+                             aria-expanded="false" aria-controls="collapse1">
+                            <h5 class="mb-0">
+                                How can I receive the latest company updates?<span
+                                    class="icon icon-options-vertical"></span>
+                            </h5>
+                        </div>
+                        <div id="collapse1" class="collapse">
+                            <div class="card-body">
+                                You can receive the latest company updates through the "News and Announcements" section
+                                on our website. Additionally, you can subscribe to our email newsletter to get updates
+                                directly in your inbox.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mt-4">
+                    <div class="card">
+                        <div class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#collapse2"
+                             aria-expanded="false" aria-controls="collapse2">
+                            <h5 class="mb-0">
+                                What documents do I need to board the plane? <span
+                                    class="icon icon-options-vertical"></span>
+                            </h5>
+                        </div>
+                        <div id="collapse2" class="collapse">
+                            <div class="card-body">
+                                To board the plane, you need a valid identification card and a boarding pass. Please
+                                ensure you have these documents with you and accessible.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mt-4">
+                    <div class="card">
+                        <div class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#collapse3"
+                             aria-expanded="false" aria-controls="collapse3">
+                            <h5 class="mb-0">
+                                How can I report a technical issue?<span class="icon icon-options-vertical"></span>
+                            </h5>
+                        </div>
+                        <div id="collapse3" class="collapse">
+                            <div class="card-body">
+                                You can report technical issues through the "About Us" section on our website. Please
+                                enter the details of the issue and your flight number so our technical team can address
+                                it promptly.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mt-4">
+                    <div class="card">
+                        <div class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#collapse4"
+                             aria-expanded="false" aria-controls="collapse4">
+                            <h5 class="mb-0">
+                                How can I contact the flight crew? <span class="icon icon-options-vertical"></span>
+                            </h5>
+                        </div>
+                        <div id="collapse4" class="collapse">
+                            <div class="card-body">
+                                You can contact the flight crew through the "Contact Us" section on our website. Fill
+                                out the contact form or use the available phone numbers to get in touch with us.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block footer %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/css/swiper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/js/swiper.min.js"></script>
+
+    <script>
+        $('document').ready(() => {
+            var swiper = new Swiper('.swiper-container', {
+                slidesPerView: 1,
+                spaceBetween: 100,
+                {#centeredSlides: true,#}
+                autoplay: {
+                    delay: 2500,
+                    disableOnInteraction: false,
+                },
+            });
+
+            $(window).scroll(function (event) {
+                if ($(this).scrollTop() > 0) {
+                    $('.app-header').addClass('scrolled');
+                } else {
+                    $('.app-header').removeClass('scrolled');
+                }
+            });
+
+            if ($(this).scrollTop() > 0) {
+                $('.app-header').addClass('scrolled');
+            } else {
+                $('.app-header').removeClass('scrolled');
+            }
+        });
+    </script>
+{% endblock %}

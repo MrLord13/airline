@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LineOps Crewing</title>
+    <link rel="icon" type="image/png" href="{% static 'static/img/logo.png' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}"/>
+    <link rel="stylesheet" href="{% static 'fonts/Simple-Line-Icons/simple-line-icons.css' %}"/>
+</head>
+<body>
+<div class="blur-overlay"></div>
+<div class="d-flex align-items-center justify-content-center auth">
+    <div class="auth-box d-flex">
+        <div class="form-box p-2 flex-fill">
+            <div class="auth-logo mt-4">
+                <img src="{% static '/img/logo.png' %}" alt="">
+            </div>
+            <form method="post" action="{% url 'login_page' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-icon">
+                        <label>Username</label>
+                        <span class="input-icon-addon">
+                              <i class="icon-user"></i>
+                            </span>
+                        <input type="text" name="username" class="form-control" placeholder="Username">
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="input-icon">
+                        <label>Password</label>
+                        <span class="input-icon-addon">
+                              <i class="icon-key"></i>
+                            </span>
+                        <input type="password" name="password" class="form-control" placeholder="Password">
+                    </div>
+                </div>
+                <div class="form-group mt-2 d-flex flex-row-reverse">
+                    <a class="forget-password" href="#">Forget Password?</a>
+                </div>
+                <div class="form-group mt-3 text-center">
+                    <button class="btn" id="btn-login">
+                        Login
+                    </button>
+                    <p class="text-danger">{{ message }}</p>
+                </div>
+            </form>
+            <div class="box-splittor">
+                <hr>
+                <label>OR</label>
+            </div>
+            <div class="form-group mt-4 text-center">
+                <a href="/" class="back-home">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

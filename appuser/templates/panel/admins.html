@@ -1,0 +1,266 @@
+{% extends 'panel/layouts/panel.base.html' %}
+{% load static %}
+{% block page_head %}
+    <link href="{% static '/css/panel/datatables.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block page_content %}
+    <div class="col-md-12">
+        <div class="card">
+            <div class="d-flex align-items-center card-header">
+                <h4 class="card-title">Admin Management</h4>
+                <button class="btn btn-primary btn-round ms-auto create-new-item" data-toggle="modal" data-target="#addAdminModal">
+                    <i class="fa fa-plus"></i>
+                    Create New Admin
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Options</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Creating/Editing Admin -->
+    <div class="modal fade" id="addAdminModal" tabindex="-1" role="dialog" aria-labelledby="addAdminModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAdminModalLabel">Create New Admin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAdminForm">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <input type="hidden" id="adminId" name="admin_id" value="">
+                        <div class="form-group">
+                            <label for="adminFirstName">First Name</label>
+                            <input type="text" class="form-control" id="adminFirstName" placeholder="Enter first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminLastName">Last Name</label>
+                            <input type="text" class="form-control" id="adminLastName" placeholder="Enter last name">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminUsername">Username</label>
+                            <input type="text" class="form-control" id="adminUsername" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminEmail">Email</label>
+                            <input type="email" class="form-control" id="adminEmail" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPassword">Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Enter password">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPasswordConfirm">Confirm Password</label>
+                            <input type="password" class="form-control" id="adminPasswordConfirm" placeholder="Confirm password">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveAdminButton">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- Datatables -->
+    <script src="{% static '/js/plugin/datatables/datatables.min.js' %}"></script>
+    <script src="{% static '/js/plugin/sweetalert/sweetalert.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $("#multi-filter-select").DataTable({
+                ajax: {
+                    url: '{% url "admin_data" %}',
+                    type: 'POST',
+                    data: {"csrfmiddlewaretoken": '{{ csrf_token }}'},
+                },
+                columns: [
+                    {data: 'ID'},
+                    {data: 'First Name'},
+                    {data: 'Last Name'},
+                    {data: 'Username'},
+                    {data: 'Email'},
+                    {data: 'Status'},
+                    {
+                        data: null,
+                        defaultContent: '<div class="form-button-action">' +
+                                        '<button type="button" class="btn btn-xs btn-primary m-1 btn-edit" data-original-title="Edit"><i class="icon-pencil"></i></button>' +
+                                        '<button type="button" class="btn btn-xs btn-danger m-1 btn-remove" data-original-title="Remove"><i class="icon-trash"></i></button>' +
+                                        '</div>'
+                    },
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    $(row).find('.btn-edit').attr('data-id', data.ID);
+                    $(row).find('.btn-remove').attr('data-id', data.ID);
+                },
+                pageLength: 10,
+                processing: true,
+                serverSide: true,
+                "language": {
+                    "processing": "Loading, Please wait ..."
+                },
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: [6]
+                    }
+                ],
+            });
+
+            // Reset form and set title for new admin
+            $('.create-new-item').click(function () {
+                $('#createAdminForm')[0].reset();
+                $('#adminId').val(''); // Clear the admin ID
+                $('#addAdminModalLabel').text('Create New Admin');
+                $('#addAdminModal').modal('show');
+            });
+
+            // Edit admin - fetch details and set title
+            $('#multi-filter-select').on('click', '.form-button-action .btn-edit', function () {
+                var adminId = $(this).data('id');
+
+                // Fetch admin details and populate the form for editing
+                $.ajax({
+                    url: '{% url "get_admin_details" %}',
+                    type: 'GET',
+                    data: { id: adminId },
+                    success: function(data) {
+                        $('#adminId').val(data.ID);
+                        $('#adminFirstName').val(data['First Name']);
+                        $('#adminLastName').val(data['Last Name']);
+                        $('#adminUsername').val(data.Username);
+                        $('#adminEmail').val(data.Email);
+                        $('#adminPassword').val('');
+                        $('#adminPasswordConfirm').val('');
+                        $('#addAdminModalLabel').text('Edit Admin'); // Set modal title for edit
+                        $('#addAdminModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        console.log("Error fetching admin details:", xhr); // Debug log
+                        swal('Error!', 'Failed to fetch admin details.', 'error');
+                    }
+                });
+            });
+
+            // Save button click handler
+            $('#saveAdminButton').click(function () {
+                var adminId = $('#adminId').val();
+                var formData = new FormData();
+
+                // Add all form fields to FormData
+                formData.append('id', adminId);
+                formData.append('first_name', $('#adminFirstName').val());
+                formData.append('last_name', $('#adminLastName').val());
+                formData.append('username', $('#adminUsername').val());
+                formData.append('email', $('#adminEmail').val());
+                formData.append('password', $('#adminPassword').val());
+                formData.append('password_confirm', $('#adminPasswordConfirm').val());
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                // Choose URL based on whether we're creating or updating
+                var url = adminId ? '{% url "update_admin" %}' : '{% url "create_admin" %}';
+                
+                // Log the request details for debugging
+                console.log('Request URL:', url);
+                console.log('Form Data:', Object.fromEntries(formData));
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#addAdminModal').modal('hide');
+                        table.ajax.reload();
+                        swal("Success!", response.message, "success");
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        swal("Error!", errorMessage, "error");
+                    }
+                });
+            });
+
+            // Modal close handler
+            $(".modal-close").click(function () {
+                $('#addAdminModal').modal('hide');
+            });
+
+            // Delete admin handler
+            $('#multi-filter-select').on('click', '.form-button-action .btn-remove', function () {
+                var adminId = $(this).data('id');
+                
+                swal({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    buttons: {
+                        cancel: {
+                            visible: true,
+                            text: 'No, cancel!',
+                            className: 'btn btn-danger'
+                        },
+                        confirm: {
+                            text: 'Yes, delete it!',
+                            className: 'btn btn-success'
+                        }
+                    }
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: '{% url "delete_admin" %}',
+                            type: 'POST',
+                            data: {
+                                id: adminId,
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                table.ajax.reload();
+                                swal("Deleted!", response.message, "success");
+                            },
+                            error: function(xhr) {
+                                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while deleting the admin.';
+                                swal("Error!", errorMessage, "error");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script> 
+{% endblock %} 
