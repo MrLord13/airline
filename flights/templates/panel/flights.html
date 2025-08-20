@@ -1,0 +1,764 @@
+{% extends 'panel/layouts/panel.base.html' %}
+{% load static %}
+{% block page_head %}
+    <link href="{% static '/css/panel/datatables.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static '/css/panel/gijgo.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+
+{% block page_content %}
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="d-flex align-items-center card-header">
+                <h4 class="card-title">Flights Management</h4>
+
+                {% if request.user.is_superuser or request.user.is_staff %}
+                    <button class="btn btn-primary btn-round ms-auto create-new-item">
+                        <i class="fa fa-plus"></i>
+                        Create New Flight
+                    </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>Flight NO</th>
+                            <th>Airline</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Airline Code</th>
+                            <th>Date</th>
+                            <th>Arrive</th>
+                            <th>Flight Time</th>
+                            <th>Permit</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Flight NO</th>
+                            <th>Airline</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Airline Code</th>
+                            <th>Date</th>
+                            <th>Arrive</th>
+                            <th>Flight Time</th>
+                            <th>Permit</th>
+                            <th>Options</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade"
+         id="addRowModal"
+         tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <span class="fw-mediumbold"> Create</span>
+                        <span class="fw-light"> Flight </span>
+                    </h5>
+                    <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="small">
+                        Create a new flight using this form, make sure you fill them all.
+                    </p>
+                    <form class="modal-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="origin">Origin</label>
+                                    <input
+                                            id="origin"
+                                            type="text"
+                                            class="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="destination">Destination</label>
+                                    <input
+                                            id="destination"
+                                            type="text"
+                                            class="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="flight_no_box">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_no">Flight Number</label>
+                                    <input
+                                            id="flight_no"
+                                            type="text"
+                                            class="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="airline_name">Airline Name</label>
+                                    <input
+                                            id="airline_name"
+                                            type="text"
+                                            class="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="airline_code">Airline Code</label>
+                                    <input
+                                            id="airline_code"
+                                            type="text"
+                                            class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="airline_type">Airline Type</label>
+                                    <input
+                                            id="airline_type"
+                                            type="text"
+                                            class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_date">Flight Date</label>
+                                    <input
+                                            id="flight_date"
+                                            type="text"
+                                            class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="arrive_date">Arrive Date</label>
+                                    <input
+                                            id="arrive_date"
+                                            type="text"
+                                            class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_permit">Flight Permit</label>
+                                    <select
+                                            id="flight_permit"
+                                            class="form-control">
+                                        <option></option>
+                                        <option value="PPL">Private Pilot License</option>
+                                        <option value="CPL">Commercial Pilot License</option>
+                                        <option value="ATPL">Airline Transport Pilot License</option>
+                                        <option value="HPL">Helicopter Pilot License</option>
+                                        <option value="GPL">Glider Pilot License</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button
+                            id="closeButton"
+                            type="button"
+                            class="btn btn-outline-danger"
+                            data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button
+                            type="button"
+                            id="addRowButton"
+                            class="btn btn-primary">
+                        Create and Continue
+                    </button>
+                    <div class="text-danger w-100" style="text-align: right;" id="create-flight-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade"
+         id="edit_flight_crews"
+         tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <span class="fw-mediumbold">Edit</span>
+                        <span class="fw-light">Flight Crew</span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="small">Identify the flight crew by completing this form.</p>
+                    <form class="modal-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_pilot">Pilot</label>
+                                    <select id="flight_pilot" class="form-control">
+                                        <option value="">Select Pilot</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_co-pilot">Co-Pilot</label>
+                                    <select id="flight_co-pilot" class="form-control">
+                                        <option value="">Select Co-Pilot</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="flight_engineer">Flight Engineer</label>
+                                    <select id="flight_engineer" class="form-control">
+                                        <option value="">Select Flight Engineer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-group-default">
+                                    <label for="cabin_crew1">Flight Attendant</label>
+                                    <select id="cabin_crew1" class="form-control" multiple>
+                                        <option value="">Select Flight Attendants</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button id="closeButton" type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" id="updateFlightCreas" class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade"
+         id="edit_flight_request"
+         tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <span class="fw-mediumbold"> Edit</span>
+                        <span class="fw-light"> Flight Crew</span>
+                    </h5>
+                    <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer border-0"></div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <!-- Datatables -->
+    <script src="{% static '/js/plugin/gijgo/gijgo.js' %}"></script>
+    <script src="{% static '/js/plugin/datatables/datatables.min.js' %}"></script>
+    <script src="{% static '/js/plugin/sweetalert/sweetalert.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var flight_id = null;
+            var filters = {
+                '1': [],
+                '2': [],
+                '3': [],
+                '4': [],
+                '5': [
+                    {key: "n-3-m", val: "Next 3 Months"},
+                    {key: "n-1-m", val: "Next Month"},
+                    {key: "n-1-w", val: "Next Week"},
+                    {key: "now", val: "Today"},
+                    {key: "l-1-w", val: "Last Week"},
+                    {key: "l-1-m", val: "Last Month"},
+                    {key: "l-3-m", val: "Last 3 Months"},
+                    {key: "l-6-m", val: "Last 6 Months"},
+                    {key: "l-1-y", val: "Last Year"}
+                ],
+                '6': [
+                    {key: "n-3-m", val: "Next 3 Months"},
+                    {key: "n-1-m", val: "Next Month"},
+                    {key: "n-1-w", val: "Next Week"},
+                    {key: "now", val: "Today"},
+                    {key: "l-1-w", val: "Last Week"},
+                    {key: "l-1-m", val: "Last Month"},
+                    {key: "l-3-m", val: "Last 3 Months"},
+                    {key: "l-6-m", val: "Last 6 Months"},
+                    {key: "l-1-y", val: "Last Year"}
+                ],
+                '8': [
+                    {key: "PPL", val: "PPL"},
+                    {key: "CPL", val: "CPL"},
+                    {key: "ATPL", val: "ATPL"},
+                    {key: "HPL", val: "HPL"},
+                    {key: "GPL", val: "GPL"}
+                ]
+            }
+
+            function update_information() {
+                var data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                if (window.XMLHttpRequest) {
+                    var xhr = new XMLHttpRequest();
+                } else {
+                    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xhr.responseType = 'json';
+                xhr.open('POST', "{% url 'get_filters' %}", true);
+                xhr.onload = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        filters['1'] = xhr.response.airline.map(item => {
+                            return {key: item, val: item}
+                        });
+                        filters['2'] = xhr.response.origin.map(item => {
+                            return {key: item, val: item}
+                        });
+                        filters['3'] = xhr.response.destination.map(item => {
+                            return {key: item, val: item}
+                        });
+                        filters['4'] = xhr.response.airline_code.map(item => {
+                            return {key: item, val: item}
+                        });
+                    }
+                }
+                xhr.send(data)
+            }
+
+            update_information();
+
+            $('#flight_date').datetimepicker({footer: true, modal: true, format: 'yyyy-mm-dd HH:MM'});
+            $('#arrive_date').datetimepicker({footer: true, modal: true, format: 'yyyy-mm-dd HH:MM'});
+
+            var table = $("#multi-filter-select").DataTable({
+                ajax: {
+                    url: '{% url 'flights_datatable'  %}',
+                    type: 'POST',
+                    data: {"csrfmiddlewaretoken": '{{ csrf_token }}'},
+                },
+                columns: [
+                    {data: 'Flight NO'},
+                    {data: 'Airline'},
+                    {data: 'Origin'},
+                    {data: 'Destination'},
+                    {data: 'Airline Code'},
+                    {data: 'Date'},
+                    {data: 'Arrive'},
+                    {data: 'Flight Time'},
+                    {data: 'Permit'},
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                        {defaultContent: '<div class="form-button-action"><button type="button" data-bs-toggle="tooltip" title="Edit" class="btn btn-xs btn-primary m-1 edit" data-original-title="Edit" ><i class="icon-pencil"></i></button><button type="button" data-bs-toggle="tooltip" title="Remove" class="btn btn-xs btn-danger m-1 remove" data-original-title="Remove"><i class="icon-trash"></i></button></div>'}
+                    {% else %}
+                        {defaultContent: '<div class="form-button-action"><button type="button" data-bs-toggle="tooltip" title="Request to change status." class="btn btn-xs btn-primary m-1 show-request" data-original-title="Info">Request</button></div>'}
+                    {% endif %}
+                ],
+                pageLength: 10,
+                processing: true,
+                serverSide: true,
+                "language": {
+                    "processing": "Loading. Please wait ..."
+                },
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: [9]
+                    }
+                ],
+                initComplete: function () {
+                    this.api()
+                        .columns()
+                        .every(function () {
+                            if (filters.hasOwnProperty(this.index().toString())) {
+                                var column = this;
+                                var select = $(
+                                    '<select class="form-select"><option value=""></option></select>'
+                                )
+                                    .appendTo($(column.footer()).empty())
+                                    .on("change", function () {
+                                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                        column
+                                            .search(val ? val : "", true, false)
+                                            .draw();
+                                    });
+                                filters[this.index().toString()].map((item) => {
+                                    select.append('<option value="' + item.key + '">' + item.val + "</option>");
+                                })
+                            } else {
+                                $('').appendTo($(this.footer()).empty())
+                            }
+                        });
+                },
+            });
+
+            $('.create-new-item').click(function () {
+                flight_id = null;
+                $('#flight_no').prop('disabled', false);
+                $('#origin').val(null);
+                $('#destination').val(null);
+                $('#flight_no').val(null);
+                $('#airline_name').val(null);
+                $('#airline_code').val(null);
+                $('#airline_type').val(null);
+                $('#flight_date').val(null);
+                $('#arrive_date').val(null);
+                $('#flight_permit').val(null);
+                $("#addRowModal").modal("show");
+            });
+
+            $('#multi-filter-select').on('click', '.form-button-action .edit', function () {
+                var data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                flight_id = $(this).parents('tr').find('td').eq(0).html();
+                data.append('flight_no', flight_id);
+                if (window.XMLHttpRequest) {
+                    var xhr = new XMLHttpRequest();
+                } else {
+                    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                $('#flight_no').prop('disabled', true);
+                xhr.responseType = 'json';
+                xhr.open('POST', "{% url 'flight_info' %}", true);
+                xhr.onload = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        $('#flight_no').val(xhr.response.flight_no);
+                        $('#origin').val(xhr.response.origin);
+                        $('#destination').val(xhr.response.destination);
+                        $('#airline_name').val(xhr.response.airline_name);
+                        $('#airline_code').val(xhr.response.airline_code);
+                        $('#airline_type').val(xhr.response.airline_type);
+                        $('#flight_date').val(xhr.response.flight_date);
+                        $('#arrive_date').val(xhr.response.arrive_date);
+                        $('#flight_permit').val(xhr.response.flight_permit);
+                        if (xhr.response.active) {
+                            $('#addActive').attr('checked', 'checked');
+                        } else {
+                            $('#addActive').removeAttr('checked');
+                        }
+                        $("#addRowModal").modal("show");
+                    } else {
+                        swal({
+                            title: "Error!",
+                            text: xhr.response.message,
+                            icon: 'error',
+                            type: "danger",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-danger",
+                                },
+                            },
+                        });
+                    }
+                };
+                xhr.send(data);
+            });
+
+
+            $('#multi-filter-select').on('click', '.form-button-action .remove', function () {
+                swal({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    type: "warning",
+                    buttons: {
+                        confirm: {
+                            text: "Yes, delete it!",
+                            className: "btn btn-success",
+                        },
+                        cancel: {
+                            visible: true,
+                            className: "btn btn-danger",
+                        },
+                    },
+                }).then((Delete) => {
+                    if (Delete) {
+                        var data = new FormData();
+                        data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                        data.append('id', $(this).parents('tr').find('td').eq(0).html());
+                        if (window.XMLHttpRequest) {
+                            var xhr = new XMLHttpRequest();
+                        } else {
+                            var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                        }
+                        xhr.responseType = 'json';
+                        xhr.open('POST', "{% url 'delete_flight' %}", true);
+                        xhr.onload = function () {
+                            if (xhr.readyState == 4 && xhr.status == 200) {
+                                table.ajax.reload();
+                                swal({
+                                    title: "Deleted!",
+                                    text: "Selected flight has been deleted.",
+                                    type: "success",
+                                    buttons: {
+                                        confirm: {
+                                            className: "btn btn-success",
+                                        },
+                                    },
+                                });
+                            } else {
+                                swal({
+                                    title: "Deleted!",
+                                    text: "An unknown error occurred, please try again.",
+                                    type: "error",
+                                    buttons: {
+                                        confirm: {
+                                            className: "btn btn-success",
+                                        },
+                                    },
+                                });
+                            }
+                        }
+                        xhr.send(data);
+                    } else {
+                        swal.close();
+                    }
+                });
+            });
+
+            $('#multi-filter-select').on('click', '.form-button-action .show-request', function (){
+                $('#edit_flight_request').modal("show");
+
+
+
+            });
+            $("#closeButton").click(function () {
+                $("#addRowModal").modal("hide");
+            });
+
+            function edit_crew() {
+                $("#edit_flight_crews").modal("show");
+                table.ajax.reload();
+                
+                // Clear existing options
+                $('#flight_pilot').empty().append('<option value="">Select Pilot</option>');
+                $('#flight_co-pilot').empty().append('<option value="">Select Co-Pilot</option>');
+                $('#flight_engineer').empty().append('<option value="">Select Flight Engineer</option>');
+                $('#cabin_crew1').empty().append('<option value="">Select Flight Attendants</option>');
+
+                var data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                data.append('flight_no', flight_id);
+                
+                console.log('Sending request with flight_no:', flight_id);
+                
+                $.ajax({
+                    url: "{% url 'get_crews' %}",
+                    type: 'POST',
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('Complete Response:', response);
+                        
+                        // Handle pilots
+                        if (response.PI && response.PI.length > 0) {
+                            response.PI.forEach(function(item) {
+                                var selected = response.Flight_PI && response.Flight_PI.includes(item.id) ? ' selected' : '';
+                                $('#flight_pilot').append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                            });
+                            
+                            // Set the selected value for pilot
+                            if (response.Flight_PI && response.Flight_PI.length > 0) {
+                                $('#flight_pilot').val(response.Flight_PI[0]);
+                            }
+                        } else {
+                            console.warn('No pilots found in response');
+                        }
+
+                        // Handle co-pilots
+                        if (response.CO_PI && response.CO_PI.length > 0) {
+                            response.CO_PI.forEach(function(item) {
+                                var selected = response.Flight_CO_PI && response.Flight_CO_PI.includes(item.id) ? ' selected' : '';
+                                $('#flight_co-pilot').append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                            });
+                            
+                            // Set the selected value for co-pilot
+                            if (response.Flight_CO_PI && response.Flight_CO_PI.length > 0) {
+                                $('#flight_co-pilot').val(response.Flight_CO_PI[0]);
+                            }
+                        }
+
+                        // Handle flight engineers
+                        if (response.FL_EN && response.FL_EN.length > 0) {
+                            response.FL_EN.forEach(function(item) {
+                                var selected = response.Flight_FL_EN && response.Flight_FL_EN.includes(item.id) ? ' selected' : '';
+                                $('#flight_engineer').append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                            });
+                            
+                            // Set the selected value for flight engineer
+                            if (response.Flight_FL_EN && response.Flight_FL_EN.length > 0) {
+                                $('#flight_engineer').val(response.Flight_FL_EN[0]);
+                            }
+                        }
+
+                        // Handle flight attendants
+                        if (response.FL_ATE && response.FL_ATE.length > 0) {
+                            response.FL_ATE.forEach(function(item) {
+                                var selected = response.Flight_FL_ATE && response.Flight_FL_ATE.includes(item.id) ? ' selected' : '';
+                                $('#cabin_crew1').append('<option value="' + item.id + '"' + selected + '>' + item.name + '</option>');
+                            });
+                            
+                            // Set the selected values for flight attendants
+                            if (response.Flight_FL_ATE && response.Flight_FL_ATE.length > 0) {
+                                $('#cabin_crew1').val(response.Flight_FL_ATE);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading crew members:', error);
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        swal({
+                            title: "Error!",
+                            text: "Failed to load crew members. Please try again.",
+                            icon: 'error',
+                            type: "danger",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-danger",
+                                },
+                            },
+                        });
+                    }
+                });
+            }
+
+            $('#updateFlightCreas').click(function () {
+                var data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                data.append('flight_no', flight_id);
+                data.append('crews', $('#cabin_crew1').val());
+                data.append('en', $('#flight_engineer').val());
+                data.append('co-pi', $('#flight_co-pilot').val());
+                data.append('pi', $('#flight_pilot').val());
+                if (window.XMLHttpRequest) {
+                    var xhr2 = new XMLHttpRequest();
+                } else {
+                    var xhr2 = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xhr2.responseType = 'json';
+                xhr2.open('POST', "{% url 'update_crews' %}", true);
+                xhr2.onload = function () {
+                    if (xhr2.readyState == 4 && xhr2.status == 200) {
+                        table.ajax.reload();
+                        $("#edit_flight_crews").modal("hide");
+                        update_information();
+                        swal({
+                            title: "Success!",
+                            text: xhr2.response.message,
+                            icon: 'success',
+                            type: "success",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-success",
+                                },
+                            },
+                        });
+                    } else {
+                        swal({
+                            title: "Error!",
+                            text: xhr2.response.message,
+                            icon: 'error',
+                            type: "danger",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-danger",
+                                },
+                            },
+                        });
+                    }
+                }
+                xhr2.send(data);
+            });
+
+            $("#addRowButton").click(function () {
+                $('#create-flight-message').html();
+                var data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                data.append('origin', $('#origin').val());
+                data.append('destination', $('#destination').val());
+                data.append('flight_no', $('#flight_no').val());
+                data.append('flight_no_old', flight_id);
+                data.append('airline_name', $('#airline_name').val());
+                data.append('airline_code', $('#airline_code').val());
+                data.append('airline_type', $('#airline_type').val());
+                data.append('flight_date', $('#flight_date').val());
+                data.append('arrive_date', $('#arrive_date').val());
+                data.append('flight_permit', $('#flight_permit').val());
+                if (window.XMLHttpRequest) {
+                    var xhr = new XMLHttpRequest();
+                } else {
+                    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xhr.responseType = 'json';
+                xhr.open('POST', "{% url 'create_flight' %}", true);
+
+                xhr.onload = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        $("#addRowModal").modal("hide");
+                        table.ajax.reload();
+                        flight_id = $('#flight_no').val();
+                        edit_crew();
+                    } else {
+                        $('#create-flight-message').html(xhr.response.message)
+                    }
+                }
+                xhr.send(data)
+            });
+
+            $('#addRowModal .close, #edit_flight_crews .close').click(function () {
+                $("#addRowModal").modal("hide");
+            });
+
+            // Initialize select2
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Select an option',
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}

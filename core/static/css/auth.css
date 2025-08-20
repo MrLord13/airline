@@ -1,0 +1,238 @@
+/*!
+# [Color codes]
+
+body-text-color: #575962
+white-color: #ffffff
+black-color: #191919
+transparent-bg : transparent
+default-color : #282a3c
+primary-color : #177dff
+secondary-color : #716aca
+info-color : #36a3f7
+success-color : #35cd3a
+warning-color : #ffa534
+danger-color : #f3545d
+
+-------------------------------------------------------------------*/
+body, html {
+    background: url("../img/bg-login.jpg") no-repeat center center / cover;
+    height: 100% !important;
+    width: 100% !important;
+    position: relative;
+}
+
+.blur-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../img/bg-login.jpg") no-repeat center center / cover;
+    filter: blur(8px);
+    z-index: 0;
+}
+
+.auth {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative;
+    z-index: 1;
+}
+
+.auth .auth-box {
+    background: rgba(255, 255, 255, 1);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-logo {
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.auth-logo img { 
+    height: 60px;
+    margin: auto;
+}
+
+.auth .auth-box .slide-box {
+    min-height: 450px;
+    width: 50%;
+    background: url("../img/login-bg.jpg") no-repeat;
+    background-size: 100% 100%;
+    border-right: 1px solid #ededef;
+    padding: 5px;
+}
+
+.auth .auth-box .form-box {
+    min-height: 450px;
+    width: 400px;
+    padding: 30px 40px !important;
+    background: url("../img/auth-bg-1.png") no-repeat;
+    background-size: 140px 60px;
+    background-position-x: right;
+    background-position-y: 10px;
+}
+
+.auth .auth-box .form-box form {
+    max-width: 320px;
+    margin: auto;
+}
+
+.input-icon {
+    border: 1px solid rgba(1, 158, 227, 0.3);
+    border-radius: 10px;
+    position: relative;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.input-icon:hover, .input-icon:focus-within {
+    border-color: #019EE3;
+    box-shadow: 0 0 15px rgba(1, 158, 227, 0.1);
+}
+
+.input-icon input[type=text], .input-icon input[type=password] {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: inline;
+    padding: 12px 15px 12px 35px !important;
+    background: transparent;
+    border-radius: 10px;
+}
+
+.input-icon input[type=text]:focus, .input-icon input[type=password]:focus {
+    outline: none;
+}
+
+.input-icon label {
+    position: absolute;
+    top: -12px;
+    left: 10px;
+    background: #fff;
+    padding: 0px 5px;
+    color: #019EE3;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.input-icon .input-icon-addon {
+    position: absolute !important;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline;
+    color: #019EE3;
+}
+
+#btn-login {
+    width: 100%;
+    background: linear-gradient(135deg, #019EE3, #0183bd);
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn#btn-login:hover, .btn#btn-login:focus {
+    background: #ffffff !important;
+    color: #019EE3 !important;
+    border: 1px solid #019EE3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(1, 158, 227, 0.2);
+}
+
+.forget-password {
+    color: #019EE3;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.forget-password:hover {
+    color: #0183bd;
+    text-decoration: underline;
+}
+
+.box-splittor {
+    width: 200px;
+    margin: auto;
+    margin-top: 40px;
+    text-align: center;
+    position: relative;
+}
+
+.box-splittor hr {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.box-splittor label {
+    font-size: 13px;
+    position: absolute;
+    top: 0;
+    margin-top: -16px;
+    margin-left: -20px;
+    background: #fff;
+    padding: 3px 10px;
+    color: #666;
+}
+
+.back-home {
+    background: #fff;
+    padding: 12px 25px;
+    border-radius: 10px;
+    color: #019EE3;
+    border: 1px solid #019EE3;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.back-home:hover {
+    background: #019EE3;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(1, 158, 227, 0.2);
+}
+
+@media only screen and (max-width: 600px) {
+    .auth .auth-box {
+        width: 90%;
+        margin: 20px;
+    }
+    
+    .auth .auth-box .form-box {
+        width: 100%;
+        padding: 20px !important;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .auth .auth-box {
+        width: 90%;
+        max-width: 400px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .auth .auth-box {
+        width: 400px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .auth .auth-box {
+        width: 400px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .auth .auth-box {
+        width: 400px;
+    }
+}

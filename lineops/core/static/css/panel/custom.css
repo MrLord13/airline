@@ -1,0 +1,121 @@
+/* Custom color overrides */
+:root {
+    --primary-color: rgb(20, 156, 180);
+    --primary-hover: rgba(255, 255, 255, 0.1);
+    --hover-text-color: rgb(8%, 61%, 71%);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    background-color: var(--primary-color) !important;
+}
+
+.sidebar .sidebar-logo {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar .nav > .nav-item > a {
+    color: #FFF !important;
+}
+
+.sidebar .nav > .nav-item > a i {
+    color: #FFF !important;
+}
+
+.sidebar .nav > .nav-item > a:hover {
+    background-color: var(--primary-hover) !important;
+    color: #FFF !important;
+}
+ 
+
+/* Active menu items */
+.sidebar .nav > .nav-item.active > a {
+    background-color: var(--primary-hover) !important;
+    color: #FFF !important;
+}
+
+/* Header and navigation */
+.logo-header[data-background-color="custom"],
+.navbar-header[data-background-color="custom"] {
+    background-color: var(--primary-color) !important;
+}
+
+/* Links and text */
+a {
+    color: var(--primary-color) !important;
+}
+
+a:focus, a:hover {
+    color: var(--primary-hover) !important;
+}
+
+.text-primary, .text-primary a {
+    color: var(--primary-color) !important;
+}
+
+.text-primary a:hover, .text-primary:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #ffffff !important;
+    border-color: var(--hover-text-color) !important;
+    color: var(--hover-text-color) !important;
+}
+
+/* Cards and other elements */
+.card-primary {
+    border-color: var(--primary-color) !important;
+}
+
+.card-header-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Progress bars */
+.progress-bar-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Form elements */
+.form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(20, 156, 180, 0.25) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color) !important;
+}
+
+/* Breadcrumbs */
+.breadcrumbs li a {
+    color: var(--primary-color) !important;
+}
+
+/* Dropdown menus */
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--primary-color) !important;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Badges */
+.badge-primary {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+} 

@@ -1,0 +1,448 @@
+{% extends 'panel/layouts/panel.base.html' %}
+{% load static %}
+{% block page_head %}
+    <link href="{% static '/css/panel/datatables.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block page_content %}
+    <div class="col-md-12">
+        <div class="card">
+            <div class="d-flex align-items-center card-header">
+                <h4 class="card-title">Crew Management</h4>
+                <button class="btn btn-primary btn-round ms-auto create-new-item" data-toggle="modal" data-target="#addCrewModal">
+                    <i class="fa fa-plus"></i>
+                    Create New Crew Member
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Expertise Level</th>
+                            <th>Status</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Expertise Level</th>
+                            <th>Status</th>
+                            <th>Options</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Creating/Editing Crew -->
+    <div class="modal fade" id="addCrewModal" tabindex="-1" role="dialog" aria-labelledby="addCrewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCrewModalLabel">Create New Crew Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createCrewForm">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <input type="hidden" id="crewId" name="crew_id" value="">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewFirstName">First Name</label>
+                                    <input type="text" class="form-control" id="crewFirstName" placeholder="Enter first name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewLastName">Last Name</label>
+                                    <input type="text" class="form-control" id="crewLastName" placeholder="Enter last name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewEmail">Email</label>
+                                    <input type="email" class="form-control" id="crewEmail" placeholder="Enter email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewPhoneNumber">Phone Number</label>
+                                    <input type="tel" class="form-control" id="crewPhoneNumber" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewRole">Role</label>
+                                    <select class="form-control" id="crewRole">
+                                        <option value="">Select Role</option>
+                                        <option value="PI">Pilot</option>
+                                        <option value="CO-PI">Co-Pilot</option>
+                                        <option value="FL-EN">Flight Engineer</option>
+                                        <option value="FL-ATE">Flight Attendant</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="crewExpertiseLevel">Expertise Level</label>
+                                    <select class="form-control" id="crewExpertiseLevel">
+                                        <option value="">Select Level</option>
+                                        <option value="1">Level 1</option>
+                                        <option value="2">Level 2</option>
+                                        <option value="3">Level 3</option>
+                                        <option value="4">Level 4</option>
+                                        <option value="5">Level 5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="crewLocation">Location</label>
+                                    <input type="text" class="form-control" id="crewLocation" placeholder="Enter location">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="crewAvailabilityTime">Availability Time</label>
+                                    <input type="text" class="form-control" id="crewAvailabilityTime" placeholder="Enter availability time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="crewDescription">Description</label>
+                                    <textarea class="form-control" id="crewDescription" rows="3" placeholder="Enter description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="crewIsActive" checked>
+                                        <label class="custom-control-label" for="crewIsActive">Active Status</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCrewButton">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Viewing Crew Details -->
+    <div class="modal fade" id="viewCrewModal" tabindex="-1" role="dialog" aria-labelledby="viewCrewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewCrewModalLabel">Crew Member Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>First Name:</strong> <span id="viewFirstName"></span></p>
+                            <p><strong>Last Name:</strong> <span id="viewLastName"></span></p>
+                            <p><strong>Email:</strong> <span id="viewEmail"></span></p>
+                            <p><strong>Phone Number:</strong> <span id="viewPhoneNumber"></span></p>
+                            <p><strong>Role:</strong> <span id="viewRole"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Expertise Level:</strong> <span id="viewExpertiseLevel"></span></p>
+                            <p><strong>Location:</strong> <span id="viewLocation"></span></p>
+                            <p><strong>Availability Time:</strong> <span id="viewAvailabilityTime"></span></p>
+                            <p><strong>Status:</strong> <span id="viewStatus"></span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p><strong>Description:</strong></p>
+                            <p id="viewDescription"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- Datatables -->
+    <script src="{% static '/js/plugin/datatables/datatables.min.js' %}"></script>
+    <script src="{% static '/js/plugin/sweetalert/sweetalert.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $("#multi-filter-select").DataTable({
+                ajax: {
+                    url: '{% url "crew_data" %}',
+                    type: 'GET'
+                },
+                columns: [
+                    {data: 'ID'},
+                    {data: 'First Name'},
+                    {data: 'Last Name'},
+                    {data: 'Email'},
+                    {data: 'Role'},
+                    {
+                        data: 'Expertise Level',
+                        render: function(data, type, row) {
+                            return `Level ${data}`;
+                        }
+                    },
+                    {data: 'Status'},
+                    {
+                        data: null,
+                        defaultContent: '<div class="form-button-action">' +
+                                        '<button type="button" class="btn btn-xs btn-info m-1 btn-view" data-original-title="View"><i class="icon-eye"></i></button>' +
+                                        '<button type="button" class="btn btn-xs btn-primary m-1 btn-edit" data-original-title="Edit"><i class="icon-pencil"></i></button>' +
+                                        '<button type="button" class="btn btn-xs btn-danger m-1 btn-remove" data-original-title="Remove"><i class="icon-trash"></i></button>' +
+                                        '</div>'
+                    }
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    $(row).find('.btn-edit').attr('data-id', data.ID);
+                    $(row).find('.btn-remove').attr('data-id', data.ID);
+                    $(row).find('.btn-view').attr('data-id', data.ID);
+                },
+                pageLength: 10,
+                processing: true,
+                serverSide: true,
+                "language": {
+                    "processing": "Loading, Please wait ..."
+                },
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: [7]
+                    }
+                ],
+            });
+
+            // Reset form and set title for new crew
+            $('.create-new-item').click(function () {
+                $('#createCrewForm')[0].reset();
+                $('#crewId').val('');
+                $('#crewIsActive').prop('checked', true);
+                $('#addCrewModalLabel').text('Create New Crew Member');
+                $('#addCrewModal').modal('show');
+            });
+
+            // View crew details
+            $('#multi-filter-select').on('click', '.form-button-action .btn-view', function () {
+                var crewId = $(this).data('id');
+
+                $.ajax({
+                    url: '{% url "get_crew_details" %}',
+                    type: 'GET',
+                    data: { id: crewId },
+                    success: function(data) {
+                        $('#viewFirstName').text(data['First Name']);
+                        $('#viewLastName').text(data['Last Name']);
+                        $('#viewEmail').text(data.Email);
+                        $('#viewPhoneNumber').text(data['Phone Number']);
+                        $('#viewRole').text(data.Role);
+                        $('#viewExpertiseLevel').text(`Level ${data['Expertise Level']}`);
+                        $('#viewLocation').text(data.Location);
+                        $('#viewAvailabilityTime').text(data['Availability Time']);
+                        $('#viewDescription').text(data.Description);
+                        $('#viewStatus').text(data.Status);
+                        $('#viewCrewModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to fetch crew details.';
+                        swal('Error!', errorMessage, 'error');
+                    }
+                });
+            });
+
+            // Edit crew - fetch details and set title
+            $('#multi-filter-select').on('click', '.form-button-action .btn-edit', function () {
+                var crewId = $(this).data('id');
+
+                $.ajax({
+                    url: '{% url "get_crew_details" %}',
+                    type: 'GET',
+                    data: { id: crewId },
+                    success: function(data) {
+                        $('#crewId').val(data.ID);
+                        $('#crewFirstName').val(data['First Name']);
+                        $('#crewLastName').val(data['Last Name']);
+                        $('#crewEmail').val(data.Email);
+                        $('#crewPhoneNumber').val(data['Phone Number']);
+                        $('#crewRole').val(data.Role);
+                        $('#crewExpertiseLevel').val(data['Expertise Level']);
+                        $('#crewLocation').val(data.Location);
+                        $('#crewAvailabilityTime').val(data['Availability Time']);
+                        $('#crewDescription').val(data.Description);
+                        $('#crewIsActive').prop('checked', data.Status === 'Active');
+                        $('#addCrewModalLabel').text('Edit Crew Member');
+                        $('#addCrewModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to fetch crew details.';
+                        swal('Error!', errorMessage, 'error');
+                    }
+                });
+            });
+
+            // Save button click handler
+            $('#saveCrewButton').click(function () {
+                var crewId = $('#crewId').val();
+                var firstName = $('#crewFirstName').val().trim();
+                var lastName = $('#crewLastName').val().trim();
+                var email = $('#crewEmail').val().trim();
+                var phoneNumber = $('#crewPhoneNumber').val().trim();
+                var role = $('#crewRole').val();
+                var expertiseLevel = $('#crewExpertiseLevel').val();
+                var location = $('#crewLocation').val().trim();
+                var availabilityTime = $('#crewAvailabilityTime').val().trim();
+                var description = $('#crewDescription').val().trim();
+                var isActive = $('#crewIsActive').is(':checked');
+
+                // Validate required fields
+                if (!email) {
+                    swal("Error!", "Email is required.", "error");
+                    return;
+                }
+                if (!role) {
+                    swal("Error!", "Role is required.", "error");
+                    return;
+                }
+                if (!expertiseLevel) {
+                    swal("Error!", "Expertise level is required.", "error");
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('id', crewId);
+                formData.append('first_name', firstName);
+                formData.append('last_name', lastName);
+                formData.append('email', email);
+                formData.append('phone_number', phoneNumber);
+                formData.append('role', role);
+                formData.append('expertise_level', expertiseLevel);
+                formData.append('location', location);
+                formData.append('availability_time', availabilityTime);
+                formData.append('description', description);
+                formData.append('is_active', isActive);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                var url = crewId ? '{% url "update_crew" %}' : '{% url "create_crew" %}';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#addCrewModal').modal('hide');
+                        table.ajax.reload();
+                        swal("Success!", response.message, "success");
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        swal("Error!", errorMessage, "error");
+                    }
+                });
+            });
+
+            // Delete crew handler
+            $('#multi-filter-select').on('click', '.form-button-action .btn-remove', function () {
+                var crewId = $(this).data('id');
+                
+                swal({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    buttons: {
+                        cancel: {
+                            visible: true,
+                            text: 'No, cancel!',
+                            className: 'btn btn-danger'
+                        },
+                        confirm: {
+                            text: 'Yes, delete it!',
+                            className: 'btn btn-success'
+                        }
+                    }
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: '{% url "delete_crew" %}',
+                            type: 'POST',
+                            data: {
+                                id: crewId,
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                table.ajax.reload();
+                                swal("Deleted!", response.message, "success");
+                            },
+                            error: function(xhr) {
+                                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while deleting the crew member.';
+                                swal("Error!", errorMessage, "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Close modals when clicking close buttons
+            $('[data-dismiss="modal"]').click(function() {
+                $(this).closest('.modal').modal('hide');
+            });
+
+            // Close modals when clicking outside
+            $('.modal').click(function(event) {
+                if ($(event.target).hasClass('modal')) {
+                    $(this).modal('hide');
+                }
+            });
+
+            // Close modals when pressing ESC key
+            $(document).keyup(function(e) {
+                if (e.key === "Escape") {
+                    $('.modal').modal('hide');
+                }
+            });
+        });
+    </script>
+{% endblock %} 

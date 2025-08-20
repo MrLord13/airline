@@ -1,0 +1,158 @@
+{% extends 'layouts/theme.base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+    <section class="container about-box">
+        <div class="row">
+            <div class="col-6">
+                <h1>Ultimately, LineOps will seek to solve many fundamental problems in the industry.</h1>
+                <ul>
+                    <li>
+                        <span class="icon-plane"></span>
+                        <p>We are committed to providing safe and comfortable flight services to our passengers.</p>
+                    </li>
+                    <li>
+                        <span class="icon-trophy"></span>
+                        <p>Our team consists of professional and experienced pilots and crew.</p>
+                    </li>
+                    <li>
+                        <span class="icon-globe"></span>
+                        <p>We fly to a variety of domestic and international destinations.</p>
+                    </li>
+                    <li>
+                        <span class="icon-diamond"></span>
+                        <p>Our goal is to create a pleasant and memorable experience for our passengers.</p>
+                    </li>
+                    <li>
+                        <span class="icon-speedometer"></span>
+                        <p>We take pride in using the latest technologies to enhance our services.</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-6">
+                <img src="{% static '/img/Abouts_org.JPG' %}" width="100%" alt="">
+            </div>
+        </div>
+    </section>
+    <section class="container-fluid about-section ">
+        <div class="row">
+            <div class="col-12">
+                <div class="about-section-content">
+                    <h2>Reza Esmaeili Rad <span>- CEO</span></h2>
+                    <p>
+                        Experienced airline Capitan with 11,000+ total flight
+                        hours, including 4,000+ night flight hours on Fokker 50
+                        and DC 9 80/MD 88/MD 90. Focused on creating a
+                        positive travel experience for all passengers. Brings in
+                        depth proficiency in aviation, along with superb
+                        problem solving and conflict resolution capabilities.
+                        Multitasking member of KISH AIRLINE, self-directed and
+                        driven aviation professional with comprehensive
+                        accomplishment leading fleet management,
+                        procurement operation, flight safety and cross–
+                        functional teams to ensure success and achieve goals.
+                        As a Type Rating Examiner excels at analyzing,
+                        developing and executing innovative project solutions
+                        to meet operational requirements.
+                    </p>
+                </div>
+                
+                <div class="mask"></div>
+            </div>
+            <br/><hr/>
+            <div class="col-12">
+                <div class="about-section-content">
+                    <h2>Ali Khorasanchi <span>- CTO</span></h2>
+                    <p>
+
+                        Highly experienced professional, with three degrees, as a
+                        bachelor of Natural Resources Fisheries Engineering,
+                        Computer Software and a Masters in Technology
+                        Management.
+                        -New Technologies Development Company (Agricultural 
+                        Bank IT Company) from 2011 to 2015
+                        -Agricultural Bank (Official Bank Insurance) since 2015
+                        -Computer programmer and designer of banking systems
+                        -Design & implementation of agricultural bank credit system 
+                        -Design and implementation of unit beneficiary systems and accreditation and related credit services and liaison with the Central Bank
+                    </p>
+                </div>
+                <div class="about-section-content">
+                    <h2>Mahdi Nazemzadeh <span>- CMO</span></h2>
+                    <p>
+                        Highly experienced professional across several
+                        managerial positions.with three degrees, as a bachelor of Natural Resources Fisheries Engineering, Computer Software and a Masters in Technology Management. He has served as a CEO (current),
+                        a sales manager, and a trading manager across several
+                        different industries and sectors. Most recently, he has
+                        held the position of CEO with Caspian Packaging
+                        Industries in Iran. He will bring a vast managerial
+                        experience along with expertise in marketing and
+                        growth of the business to this project. He carries a
+                        bachelor degree in Finance, Accounting and Banking.
+                    </p>
+                </div>
+                <div class="mask"></div>
+            </div>
+        </div>
+    </section>
+    <section class="container">
+        <div class="row widgets">
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-phone"></i>
+                    <label>Working Hours</label>
+                    <p>Monday - Friday: 8:00 AM - 9:00 PM</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-location-pin"></i>
+                    <label>Address</label>
+                    <p>2105 S Medisson ave Pembroke Pines, FL 28260 </p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-envelope"></i>
+                    <label>Email</label>
+                    <p>Info@lineops-crewing.com</p>
+                </div>
+            </div>
+            </div>
+            <div class="row widgets">
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-envelope"></i>
+                    <label>Email - CEO</label>
+                    <p>R.Esmaeilirad@lineops-crewing.com</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-envelope"></i>
+                    <label>Email - CTO</label>
+                    <p>A.khorasanchi@lineops-crewing.com</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="widget">
+                    <i class="icon-envelope"></i>
+                    <label>Email - CMO</label>
+                    <p>M.Nazemzadeh@lineops-crewing.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+{% endblock %}
+
+{% block footer %}
+    <script>
+        $('document').ready(() => {
+            $('.app-header').addClass('scrolled');
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,341 @@
+{% extends 'panel/layouts/panel.base.html' %}
+{% load static %}
+
+{% block page_head %}
+<style>
+    .profile-header {
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        color: #1a365d;
+        box-shadow: 0 2px 20px rgba(0, 131, 176, 0.1);
+        border: 1px solid rgba(0, 131, 176, 0.1);
+    }
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2c5282;
+    }
+    .profile-role {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1.5rem;
+        background: rgba(44, 82, 130, 0.1);
+        border-radius: 30px;
+        display: inline-block;
+        color: #2d3748;
+        font-weight: 500;
+    }
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 1.5rem;
+        background: rgba(44, 82, 130, 0.05);
+        padding: 1.5rem;
+        border-radius: 15px;
+        border: 1px solid rgba(44, 82, 130, 0.1);
+    }
+    .stat-item {
+        text-align: center;
+    }
+    .stat-value {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c5282;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        color: #4a5568;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+    .info-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(44, 82, 130, 0.1);
+    }
+    .info-card h5 {
+        color: #2c5282;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(44, 82, 130, 0.1);
+    }
+    .info-item {
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    .info-item:hover {
+        background: rgba(44, 82, 130, 0.05);
+    }
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(44, 82, 130, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #2c5282;
+    }
+    .info-content {
+        flex: 1;
+    }
+    .info-label {
+        font-size: 0.9rem;
+        color: #4a5568;
+        margin-bottom: 0.2rem;
+    }
+    .info-value {
+        font-size: 1rem;
+        color: #2d3748;
+        font-weight: 500;
+    }
+    .password-form {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(44, 82, 130, 0.1);
+    }
+    .password-form h5 {
+        color: #2c5282;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(44, 82, 130, 0.1);
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        border: 2px solid rgba(44, 82, 130, 0.1);
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #2c5282;
+        box-shadow: 0 0 0 0.2rem rgba(44, 82, 130, 0.1);
+    }
+    .form-label {
+        color: #2d3748;
+        font-weight: 500;
+    }
+    .btn-change-password {
+        background: rgb(20, 156, 180)!important;
+        color: white!important;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .btn-change-password:hover {
+        background: #1a365d;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(44, 82, 130, 0.3);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="profile-header text-center">
+    <h2 class="profile-name">{{ user_to_show.get_full_name|default:user_to_show.username }}</h2>
+    <div class="profile-role">
+        {% if user_to_show.is_superuser %}
+            Administrator
+        {% else %}
+            Staff Member
+        {% endif %}
+    </div>
+    <div class="profile-stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ user_to_show.date_joined|date:"M d, Y" }}</div>
+            <div class="stat-label">Account Created</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ user_to_show.last_login|date:"M d, Y" }}</div>
+            <div class="stat-label">Last Login</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="info-card">
+            <h5><i class="icon-user me-2"></i>Personal Information</h5>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="icon-user"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ user_to_show.username }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="icon-envelope"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value">{{ user_to_show.email }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="icon-user-following"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ user_to_show.get_full_name|default:"-" }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="icon-badge"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Role</div>
+                    <div class="info-value">{% if user_to_show.is_superuser %}Administrator{% else %}Staff Member{% endif %}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="icon-phone"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value">{{ user_to_show.phone_number|default:"Not Set" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user_to_show == request.user %}
+    <div class="col-md-6">
+        <div class="password-form">
+            <h5><i class="icon-lock me-2"></i>Change Password</h5>
+            <form id="changePasswordForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-change-password">
+                        <i class="icon-lock me-2"></i>Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalMessageBody">
+        <!-- Message will be inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{% if user_to_show == request.user %}
+<script>
+$(document).ready(function() {
+    $('#changePasswordForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var currentPassword = $('#currentPassword').val();
+        var newPassword = $('#newPassword').val();
+        var confirmPassword = $('#confirmPassword').val();
+        
+        if (!currentPassword) {
+            showModal('Error', 'Please enter your current password!');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            showModal('Error', 'New passwords do not match!');
+            return;
+        }
+        
+        if (newPassword.length < 6 || newPassword.length > 20) {
+            showModal('Error', 'Password must be between 6 and 20 characters!');
+            return;
+        }
+        
+        var formData = new FormData(this);
+        
+        $.ajax({
+            url: '/dashboard/profile/update/',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    showModal('Success', response.message || 'Password changed successfully!');
+                    $('#currentPassword').val('');
+                    $('#newPassword').val('');
+                    $('#confirmPassword').val('');
+                } else {
+                    showModal('Error', response.message || 'An error occurred while changing password.');
+                }
+            },
+            error: function(xhr) {
+                var errorMessage = 'An error occurred while changing password.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.status === 400) {
+                    errorMessage = 'Bad request. Please check your input.';
+                } else if (xhr.status === 403) {
+                    errorMessage = 'You do not have permission to perform this action.';
+                } else if (xhr.status === 500) {
+                    errorMessage = 'Internal server error. Please try again later.';
+                }
+                showModal('Error', errorMessage);
+            }
+        });
+    });
+
+    function showModal(title, message) {
+        $('#messageModalLabel').text(title);
+        $('#modalMessageBody').text(message);
+        $('#messageModal').modal('show');
+    }
+});
+</script>
+{% endif %}
+{% endblock %} 
