@@ -11,7 +11,6 @@ CREW_ROLE = [
     ("FL-ATE", "Flight Attendant")
 ]
 
-
 class AdminUser(AbstractUser):
     username = models.CharField(unique=True, max_length=50)
     email = models.EmailField(unique=True, max_length=50)
@@ -43,5 +42,8 @@ class CrewMember(models.Model):
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.get_role_display()}"
