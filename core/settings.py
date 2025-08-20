@@ -84,12 +84,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'cp59281_jngoo',
-        'USER': 'cp59281_jngoo',
-        'PASSWORD': 'McV543217vSSsdD2Hs',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': 'cp59281_jngoo',
+#         'USER': 'cp59281_jngoo',
+#         'PASSWORD': 'McV543217vSSsdD2Hs',
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -154,4 +160,13 @@ LOGGING = {
             'propagate': True,
         },
     },
+}
+
+
+# settings.py
+FLIGHT_HOURS_LIMITS = {
+    'daily': 8,
+    'weekly': 30,
+    'monthly': 100,
+    'yearly': 1000,
 }
